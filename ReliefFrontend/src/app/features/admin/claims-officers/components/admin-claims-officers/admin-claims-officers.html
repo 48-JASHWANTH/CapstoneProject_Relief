@@ -1,0 +1,86 @@
+<div class="space-y-5">
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-800">Claims Officers</h1>
+      <p class="text-gray-500 text-sm mt-1">View all claims officers and their assigned claims</p>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex flex-wrap gap-3">
+    <div class="flex-1 min-w-48 relative">
+      <span class="material-icons absolute left-3 top-2.5 text-gray-400 text-lg">search</span>
+      <input
+        type="text"
+        [(ngModel)]="searchText"
+        (ngModelChange)="applyFilters()"
+        placeholder="Search by name or email..."
+        class="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#853953]"
+      />
+    </div>
+    <select
+      [(ngModel)]="filterStatus"
+      (ngModelChange)="applyFilters()"
+      class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#853953] bg-white"
+    >
+      <option value="ALL">All Status</option>
+      <option value="ACTIVE">ACTIVE</option>
+      <option value="INACTIVE">INACTIVE</option>
+    </select>
+  </div>
+
+  <!-- Cards Grid -->
+  @if (loading()) {
+    <div class="flex items-center justify-center h-48">
+      <div class="w-8 h-8 border-4 border-[#853953] border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  } @else if (filtered().length === 0) {
+    <div class="bg-white rounded-xl border border-gray-100 px-5 py-16 text-center text-gray-400">
+      <span class="material-icons text-4xl block mb-2">gavel</span>
+      No claims officers found
+    </div>
+  } @else {
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      @for (officer of filtered(); track officer.id) {
+        <div
+          (click)="viewDetail(officer.id)"
+          class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 cursor-pointer hover:shadow-md hover:border-[#853953]/30 transition-all group"
+        >
+          <!-- Avatar + Name -->
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 rounded-full bg-[#853953] flex items-center justify-center shrink-0">
+              <span class="text-white text-lg font-bold">{{ officer.name[0] }}</span>
+            </div>
+            <div>
+              <div class="font-semibold text-gray-800 group-hover:text-[#853953] transition-colors">{{ officer.name }}</div>
+              <div class="text-xs text-gray-400">{{ officer.email }}</div>
+            </div>
+          </div>
+          <!-- Status + Role badges -->
+          <div class="flex flex-wrap gap-2 mb-4">
+            <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold" [class]="statusClass(officer.status)">
+              {{ officer.status }}
+            </span>
+            @if (officer.role) {
+              <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-[#F3F4F4] text-[#612D53]">
+                {{ officer.role }}
+              </span>
+            }
+          </div>
+          <!-- Meta info -->
+          <div class="text-xs text-gray-400 flex items-center gap-1">
+            <span class="material-icons text-xs">calendar_today</span>
+            Joined {{ formatDate(officer.createdAt) }}
+          </div>
+          <!-- View detail arrow -->
+          <div class="flex items-center justify-end mt-3">
+            <span class="text-xs text-[#853953] font-medium flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              View Details <span class="material-icons text-sm">arrow_forward</span>
+            </span>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

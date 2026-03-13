@@ -1,0 +1,136 @@
+<div class="p-6 space-y-6">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-xl font-bold text-gray-800">All Claims</h1>
+      <p class="text-sm text-gray-500 mt-0.5">Review, manage and decide on submitted claims</p>
+    </div>
+    <span class="px-3 py-1.5 bg-[#F3F4F4] text-[#612D53] text-xs font-semibold rounded-full">
+      {{ filtered().length }} claim{{ filtered.length !== 1 ? 's' : '' }}
+    </span>
+  </div>
+
+  <!-- Success Toast -->
+  @if (successMsg()) {
+    <div class="flex items-center gap-3 px-4 py-3 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm">
+      <span class="material-icons text-green-500 text-lg">check_circle</span>
+      {{ successMsg() }}
+    </div>
+  }
+
+  <!-- Filters -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 px-5 py-4 flex flex-wrap gap-4">
+    <div class="flex items-center gap-2 flex-1 min-w-45">
+      <span class="material-icons text-gray-400 text-lg">filter_list</span>
+      <select [(ngModel)]="filterStatus" (ngModelChange)="applyFilters()"
+        class="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#853953] focus:ring-2 focus:ring-[#F3F4F4]">
+        @for (s of statuses; track s) {
+          <option [value]="s">{{ s === 'ALL' ? 'All Statuses' : s.replace('_', ' ') }}</option>
+        }
+      </select>
+    </div>
+    <div class="flex items-center gap-2 flex-1 min-w-45">
+      <span class="material-icons text-gray-400 text-lg">thunderstorm</span>
+      <select [(ngModel)]="filterDisaster" (ngModelChange)="applyFilters()"
+        class="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#853953] focus:ring-2 focus:ring-[#F3F4F4]">
+        @for (d of disasters; track d) {
+          <option [value]="d">{{ d === 'ALL' ? 'All Disasters' : d }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="flex items-center justify-center py-16">
+      <div class="w-10 h-10 border-4 border-[#853953] border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  }
+
+  <!-- Table -->
+  @if (!loading()) {
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      @if (filtered().length === 0) {
+        <div class="flex flex-col items-center justify-center py-16 text-gray-400">
+          <span class="material-icons text-5xl mb-3">inbox</span>
+          <p class="text-sm">No claims match the selected filters.</p>
+        </div>
+      } @else {
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Claim #</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Policy #</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Disaster</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Description</th>
+                <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Est. Loss</th>
+                <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Approved</th>
+                <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Filed</th>
+                <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+              @for (c of filtered(); track c.id) {
+                <tr class="hover:bg-gray-50 transition-colors">
+                  <td class="px-4 py-3 font-mono text-xs font-bold text-gray-700">{{ c.claimNumber }}</td>
+                  <td class="px-4 py-3 text-gray-600 text-xs">{{ c.policyNumber }}</td>
+                  <td class="px-4 py-3">
+                    <span class="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">{{ c.disasterType }}</span>
+                  </td>
+                  <td class="px-4 py-3 text-gray-600 text-xs max-w-45 truncate" [title]="c.description">{{ c.description }}</td>
+                  <td class="px-4 py-3 text-right text-gray-800 font-semibold text-xs">₹{{ c.estimatedLoss.toLocaleString() }}</td>
+                  <td class="px-4 py-3 text-right text-xs">
+                    @if (c.approvedAmount != null) {
+                      <span class="text-green-700 font-semibold">₹{{ c.approvedAmount.toLocaleString() }}</span>
+                    } @else {
+                      <span class="text-gray-400">â€”</span>
+                    }
+                  </td>
+                  <td class="px-4 py-3 text-center">
+                    <span class="px-2 py-0.5 text-xs font-semibold rounded-full" [class]="statusClass(c.status)">
+                      {{ c.status.replace('_', ' ') }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3 text-center text-xs text-gray-500">{{ c.filedDate }}</td>
+                  <td class="px-4 py-3">
+                    <div class="flex items-center justify-center gap-1.5">
+                      @if (canMarkUnderReview(c)) {
+                        <button (click)="markUnderReview(c)"
+                          class="px-2.5 py-1 bg-[#F3F4F4] hover:bg-[#F3F4F4] text-[#612D53] text-xs font-semibold rounded-lg transition-colors whitespace-nowrap">
+                          Under Review
+                        </button>
+                      }
+                      @if (canDecide(c)) {
+                        <button (click)="openDecision(c)"
+                          class="px-2.5 py-1 bg-[#853953] hover:bg-[#612D53] text-white text-xs font-semibold rounded-lg transition-colors">
+                          Decide
+                        </button>
+                      }
+                      <button (click)="viewDetail(c)"
+                        class="p-1.5 text-gray-400 hover:text-[#853953] hover:bg-[#F3F4F4] rounded-lg transition-colors" title="View Details">
+                        <span class="material-icons text-base">open_in_new</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+
+</div>
+
+<!-- Decision Dialog -->
+@if (showDecisionDialog() && selectedClaim()) {
+  <app-claim-decision-dialog
+    [claim]="selectedClaim()"
+    (save)="onDecisionSaved($event)"
+    (cancel)="showDecisionDialog.set(false)">
+  </app-claim-decision-dialog>
+}

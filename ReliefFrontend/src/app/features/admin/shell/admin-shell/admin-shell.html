@@ -1,0 +1,88 @@
+<div class="flex h-screen bg-gray-50 overflow-hidden">
+  <!-- Sidebar -->
+  <aside
+    [class]="sidebarOpen() ? 'w-64' : 'w-16'"
+    class="bg-[#853953] text-white flex flex-col fixed h-full z-20 transition-all duration-300"
+  >
+    <!-- Logo -->
+    <div class="flex items-center gap-3 px-4 py-5 border-b border-[#612D53]">
+      <div class="flex items-center justify-center w-9 h-9 bg-amber-400 rounded-lg shrink-0">
+        <span class="material-icons text-[#853953] text-xl">shield</span>
+      </div>
+      @if (sidebarOpen()) {
+        <div class="overflow-hidden">
+          <div class="text-base font-bold leading-tight">Relief</div>
+          <div class="text-xs text-[#F3F4F4]">Insurance Admin</div>
+        </div>
+      }
+    </div>
+    <!-- Nav Links -->
+    <nav class="flex-1 py-3 overflow-y-auto">
+      @for (item of navItems; track item.route) {
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="bg-[#612D53] text-white"
+          class="flex items-center gap-3 px-4 py-3 text-[#F3F4F4] hover:bg-[#612D53] hover:text-white transition-colors duration-150 cursor-pointer"
+        >
+          <span class="material-icons text-xl shrink-0">{{ item.icon }}</span>
+          @if (sidebarOpen()) {
+            <span class="text-sm font-medium whitespace-nowrap">{{ item.label }}</span>
+          }
+        </a>
+      }
+    </nav>
+    <!-- Bottom -->
+    <div class="border-t border-[#612D53] p-4">
+      @if (sidebarOpen()) {
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-8 h-8 rounded-full bg-amber-400 flex items-center justify-center">
+            <span class="text-[#853953] text-sm font-bold">{{ userName[0] }}</span>
+          </div>
+          <div class="flex-1 overflow-hidden">
+            <div class="text-sm font-medium truncate">{{ userName }}</div>
+            <div class="text-xs text-[#F3F4F4]">Administrator</div>
+          </div>
+        </div>
+      }
+      <button
+        (click)="logout()"
+        class="flex items-center gap-2 w-full px-2 py-2 text-[#F3F4F4] hover:text-white hover:bg-[#612D53] rounded-lg transition-colors text-sm"
+      >
+        <span class="material-icons text-lg">logout</span>
+        @if (sidebarOpen()) { <span>Logout</span> }
+      </button>
+    </div>
+  </aside>
+  <!-- Main Area -->
+  <div
+    [class]="sidebarOpen() ? 'ml-64' : 'ml-16'"
+    class="flex-1 flex flex-col min-w-0 transition-all duration-300"
+  >
+    <!-- Top Toolbar -->
+    <header class="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-6 sticky top-0 z-10 shadow-sm">
+      <div class="flex items-center gap-4">
+        <button
+          (click)="toggleSidebar()"
+          class="p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors"
+        >
+          <span class="material-icons text-xl">menu</span>
+        </button>
+        <span class="text-gray-700 text-sm font-semibold">Relief Insurance — Admin Portal</span>
+      </div>
+      <div class="flex items-center gap-3">
+
+        <div class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-full bg-[#853953] flex items-center justify-center">
+            <span class="text-white text-sm font-bold">{{ userName[0] }}</span>
+          </div>
+          <span class="text-sm font-medium text-gray-700">{{ userName }}</span>
+        </div>
+
+      </div>
+    </header>
+    <!-- Page Content -->
+    <main class="flex-1 overflow-auto p-6">
+      <router-outlet />
+    </main>
+  </div>
+</div>

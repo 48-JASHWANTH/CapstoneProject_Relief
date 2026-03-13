@@ -1,0 +1,131 @@
+<div class="p-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-800">Risk Pools</h1>
+      <p class="text-sm text-gray-500 mt-0.5">Monitor disaster risk pools and financial thresholds</p>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  @if (!loading()) {
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
+      <div class="bg-white rounded-xl shadow-sm p-4 flex items-center gap-4">
+        <div class="w-12 h-12 bg-[#F3F4F4] rounded-xl flex items-center justify-center"><span class="material-icons text-[#853953]">pool</span></div>
+        <div><div class="text-2xl font-bold text-gray-800">{{ pools().length }}</div><div class="text-sm text-gray-500">Total Pools</div></div>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm p-4 flex items-center gap-4">
+        <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center"><span class="material-icons text-green-600">account_balance_wallet</span></div>
+        <div><div class="text-lg font-bold text-gray-800">{{ formatCurrency(totalPremium) }}</div><div class="text-sm text-gray-500">Total Premium</div></div>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm p-4 flex items-center gap-4">
+        <div class="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center"><span class="material-icons text-purple-600">payments</span></div>
+        <div><div class="text-lg font-bold text-gray-800">{{ formatCurrency(totalClaimsPaid) }}</div><div class="text-sm text-gray-500">Total Claims Paid</div></div>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm p-4 flex items-center gap-4">
+        <div class="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center"><span class="material-icons text-red-600">warning</span></div>
+        <div><div class="text-2xl font-bold text-gray-800">{{ criticalCount }}</div><div class="text-sm text-gray-500">Critical Pools</div></div>
+      </div>
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="flex items-center justify-center h-48">
+      <div class="w-10 h-10 border-4 border-[#853953] border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  } @else {
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 border-b border-gray-100">
+          <tr>
+            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Disaster Type</th>
+            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Premium Collected</th>
+            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Claims Paid</th>
+            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Threshold</th>
+            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
+            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-50">
+          @for (pool of pools(); track pool.id) {
+            <tr [class]="pool.criticalFlag ? 'bg-red-50 hover:bg-red-100' : 'hover:bg-gray-50'" class="transition-colors">
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <div [class]="'w-8 h-8 rounded-lg flex items-center justify-center ' + (pool.criticalFlag ? 'bg-red-100' : 'bg-[#853953]')">
+                    <span [class]="'material-icons text-sm ' + (pool.criticalFlag ? 'text-red-600' : 'text-white')">water</span>
+                  </div>
+                  <div>
+                    <span class="font-medium text-gray-800">{{ pool.disasterType }}</span>
+                    @if (pool.criticalFlag) {
+                      <span class="ml-2 text-xs text-red-600 font-semibold">⚠ Critical</span>
+                    }
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 font-medium text-gray-700">{{ formatCurrency(pool.totalPremiumCollected) }}</td>
+              <td class="px-6 py-4 text-gray-600">{{ formatCurrency(pool.totalClaimsPaid) }}</td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-2">
+                  <div class="w-16 bg-gray-200 rounded-full h-1.5">
+                    <div [style.width.%]="Math.min(pool.thresholdPercentage, 100)"
+                      [class]="'h-1.5 rounded-full ' + (pool.thresholdPercentage >= 80 ? 'bg-red-500' : 'bg-[#853953]')"></div>
+                  </div>
+                  <span class="text-sm text-gray-600">{{ pool.thresholdPercentage }}%</span>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <span [class]="'px-2 py-0.5 rounded-full text-xs font-semibold ' + statusClass(pool.poolStatus)">{{ pool.poolStatus }}</span>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-1">
+
+                  <button (click)="openEdit(pool)" class="p-1.5 text-[#853953] hover:bg-[#F3F4F4] rounded-lg transition-colors" title="Edit">
+                    <span class="material-icons text-sm">edit</span>
+                  </button>
+                  <button (click)="openDelete(pool)" class="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Delete">
+                    <span class="material-icons text-sm">delete_outline</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="6" class="px-6 py-16 text-center text-gray-400">
+              <span class="material-icons text-5xl block mb-2">pool</span> No risk pools found
+            </td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+@if (showFormDialog()) {
+  <app-risk-pool-form-dialog
+    [pool]="selectedPool()"
+    [isEdit]="isEdit()"
+    (save)="onFormSaved($event)"
+    (cancel)="showFormDialog.set(false)"
+  ></app-risk-pool-form-dialog>
+}
+
+@if (showConfirmDelete()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center">
+    <div class="absolute inset-0 bg-black/50" (click)="showConfirmDelete.set(false)"></div>
+    <div class="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm mx-4">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+          <span class="material-icons text-red-600">warning</span>
+        </div>
+        <div>
+          <h3 class="font-semibold text-gray-800">Delete Risk Pool</h3>
+          <p class="text-sm text-gray-500">This cannot be undone</p>
+        </div>
+      </div>
+      <p class="text-sm text-gray-600 mb-5">Delete the <strong>{{ selectedPool()?.disasterType }}</strong> risk pool?</p>
+      <div class="flex gap-3">
+        <button (click)="showConfirmDelete.set(false)" class="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 transition-colors">Cancel</button>
+        <button (click)="confirmDelete()" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors">Delete</button>
+      </div>
+    </div>
+  </div>
+}

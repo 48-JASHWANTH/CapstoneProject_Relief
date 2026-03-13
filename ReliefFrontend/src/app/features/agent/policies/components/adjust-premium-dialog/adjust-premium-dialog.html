@@ -1,0 +1,91 @@
+<div class="fixed inset-0 z-50 flex items-center justify-center">
+  <div class="absolute inset-0 bg-black/50" (click)="onCancel()"></div>
+  <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md mx-4">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 bg-[#853953] rounded-lg flex items-center justify-center"><span class="material-icons text-white text-sm">tune</span></div>
+        <div>
+          <h2 class="text-lg font-semibold text-gray-800">Adjust Premium</h2>
+          @if (policy) { <p class="text-xs text-gray-400">{{ policy.policyNumber }}</p> }
+        </div>
+      </div>
+      <button (click)="onCancel()" class="p-1 text-gray-400 hover:text-gray-600 rounded-lg"><span class="material-icons text-xl">close</span></button>
+    </div>
+    <div class="px-6 py-5 space-y-4">
+      @if (policy) {
+        <div class="bg-gray-50 rounded-xl p-3 grid grid-cols-2 gap-3">
+          <div class="flex flex-col gap-0.5">
+            <span class="text-xs text-gray-400">Customer Sum Insured</span>
+            <span class="font-semibold text-gray-800">₹{{ policy.sumInsured.toLocaleString() }}</span>
+          </div>
+          <div class="flex flex-col gap-0.5">
+            <span class="text-xs text-gray-400">Customer Premium</span>
+            <span class="font-semibold text-gray-800">₹{{ policy.premiumAmount.toLocaleString() }}</span>
+          </div>
+        </div>
+        @if (policy.disasterZoneRiskFactor != null) {
+          <div class="rounded-xl border p-3 space-y-2"
+            [class]="policy.disasterZoneRiskFactor >= 7 ? 'bg-red-50 border-red-200' : policy.disasterZoneRiskFactor >= 5.5 ? 'bg-amber-50 border-amber-200' : 'bg-green-50 border-green-200'">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="material-icons text-sm" [class]="policy.disasterZoneRiskFactor >= 7 ? 'text-red-500' : policy.disasterZoneRiskFactor >= 5.5 ? 'text-amber-500' : 'text-green-500'">shield</span>
+                <span class="text-xs font-semibold text-gray-700">Zone Risk Factor</span>
+              </div>
+              <span class="text-xs font-bold px-2 py-0.5 rounded-full"
+                [class]="policy.disasterZoneRiskFactor >= 7 ? 'bg-red-100 text-red-700' : policy.disasterZoneRiskFactor >= 5.5 ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'">
+                {{ policy.disasterZoneRiskFactor >= 7 ? 'HIGH' : policy.disasterZoneRiskFactor >= 5.5 ? 'MEDIUM' : 'LOW' }} RISK
+              </span>
+            </div>
+            <div class="flex items-center justify-between text-xs text-gray-600">
+              <span>{{ policy.disasterZoneName }}</span>
+              <span class="font-semibold">Score: {{ policy.disasterZoneRiskFactor.toFixed(1) }} / 10</span>
+            </div>
+            <div class="text-xs text-gray-500">Premium multiplier: {{ (policy.disasterZoneRiskFactor / 5).toFixed(2) }}× base rate</div>
+          </div>
+        }
+      }
+
+      <!-- Adjusted Sum Insured -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          New Coverage / Sum Insured (₹) <span class="text-red-500">*</span>
+        </label>
+        <input [(ngModel)]="adjustedSumInsured" type="number" min="1" placeholder="Enter coverage amount"
+          (ngModelChange)="recalculatePremium()"
+          class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#853953]/30">
+        <p class="text-xs text-gray-400 mt-1">Changing this will auto-calculate the premium below.</p>
+      </div>
+
+      <!-- Adjusted Premium -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          New Premium Amount (₹) <span class="text-red-500">*</span>
+          <span class="text-gray-400 font-normal ml-1">(auto-calculated — override if needed)</span>
+        </label>
+        <input [(ngModel)]="adjustedPremium" type="number" min="1" placeholder="Premium amount"
+          class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#853953]/30"
+          [class.border-red-400]="premiumExceedsSumInsured">
+        @if (premiumExceedsSumInsured) {
+          <p class="text-xs text-red-500 mt-1">Premium cannot exceed the coverage amount (₹{{ adjustedSumInsured.toLocaleString() }}).</p>
+        }
+      </div>
+
+      <!-- Remarks -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Remarks / Justification <span class="text-red-500">*</span></label>
+        <textarea [(ngModel)]="remarks" rows="3" placeholder="Explain the reason for adjustment..."
+          class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#853953]/30 resize-none"></textarea>
+        @if (remarks.trim().length > 0 && remarks.trim().length < 5) {
+          <p class="text-xs text-red-500 mt-1">Remarks must be at least 5 characters.</p>
+        }
+      </div>
+    </div>
+    <div class="flex gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50 rounded-b-2xl">
+      <button (click)="onCancel()" class="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-white transition-colors">Cancel</button>
+      <button (click)="onSave()" [disabled]="!isValid"
+        class="flex-1 px-4 py-2 bg-[#853953] text-white rounded-lg text-sm font-medium hover:bg-[#612D53] transition-colors disabled:opacity-50">
+        Update Premium
+      </button>
+    </div>
+  </div>
+</div>

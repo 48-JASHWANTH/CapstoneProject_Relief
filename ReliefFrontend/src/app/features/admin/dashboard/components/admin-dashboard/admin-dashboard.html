@@ -1,0 +1,185 @@
+@if (loading()) {
+  <div class="flex items-center justify-center h-64">
+    <div class="flex flex-col items-center gap-3">
+      <div class="w-10 h-10 border-4 border-[#853953] border-t-transparent rounded-full animate-spin"></div>
+      <span class="text-gray-500 text-sm">Loading dashboard...</span>
+    </div>
+  </div>
+} @else if (dashboard()) {
+  <div class="space-y-6">
+    <!-- Header -->
+    <div>
+      <h1 class="text-2xl font-bold text-gray-800">System Overview</h1>
+      <p class="text-gray-500 text-sm mt-1">Real-time snapshot of Relief Insurance operations</p>
+    </div>
+
+    <!-- Row 1: Core Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
+        <div class="w-12 h-12 rounded-xl bg-[#F3F4F4] flex items-center justify-center shrink-0">
+          <span class="material-icons text-[#853953] text-2xl">people</span>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Total Users</p>
+          <p class="text-2xl font-bold text-gray-800">{{ dashboard()!.totalUsers }}</p>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
+        <div class="w-12 h-12 rounded-xl bg-teal-100 flex items-center justify-center shrink-0">
+          <span class="material-icons text-teal-600 text-2xl">support_agent</span>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Total Agents</p>
+          <p class="text-2xl font-bold text-gray-800">{{ dashboard()!.totalAgents }}</p>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
+        <div class="w-12 h-12 rounded-xl bg-[#F3F4F4] flex items-center justify-center shrink-0">
+          <span class="material-icons text-[#853953] text-2xl">policy</span>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Total Policies</p>
+          <p class="text-2xl font-bold text-gray-800">{{ dashboard()!.totalPolicies }}</p>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
+        <div class="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center shrink-0">
+          <span class="material-icons text-orange-600 text-2xl">assignment</span>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Total Claims</p>
+          <p class="text-2xl font-bold text-gray-800">{{ dashboard()!.totalClaims }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 2: Finance & Infrastructure -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
+        <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center shrink-0">
+          <span class="material-icons text-green-600 text-2xl">payment</span>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Total Payments</p>
+          <p class="text-2xl font-bold text-gray-800">{{ dashboard()!.totalPayments }}</p>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
+        <div class="w-12 h-12 rounded-xl bg-cyan-100 flex items-center justify-center shrink-0">
+          <span class="material-icons text-cyan-600 text-2xl">public</span>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Disaster Zones</p>
+          <p class="text-2xl font-bold text-gray-800">{{ dashboard()!.totalDisasterZones }}</p>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
+        <div class="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center shrink-0">
+          <span class="material-icons text-purple-600 text-2xl">account_balance</span>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Risk Pools</p>
+          <p class="text-2xl font-bold text-gray-800">{{ dashboard()!.totalRiskPools }}</p>
+        </div>
+      </div>
+      <div
+        class="rounded-xl shadow-sm border p-5 flex items-center gap-4"
+        [class]="dashboard()!.criticalRiskPools > 0 ? 'bg-red-50 border-red-200' : 'bg-white border-gray-100'"
+      >
+        <div
+          class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+          [class]="dashboard()!.criticalRiskPools > 0 ? 'bg-red-200' : 'bg-red-100'"
+        >
+          <span class="material-icons text-red-600 text-2xl">warning</span>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Critical Pools</p>
+          <p class="text-2xl font-bold" [class]="dashboard()!.criticalRiskPools > 0 ? 'text-red-700' : 'text-gray-800'">
+            {{ dashboard()!.criticalRiskPools }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 3: Policy & Claims Status -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
+        <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center shrink-0">
+          <span class="material-icons text-green-600 text-2xl">check_circle</span>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Active Policies</p>
+          <p class="text-2xl font-bold text-gray-800">{{ dashboard()!.activePolicies }}</p>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
+        <div class="w-12 h-12 rounded-xl bg-yellow-100 flex items-center justify-center shrink-0">
+          <span class="material-icons text-yellow-600 text-2xl">pending</span>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Pending Policies</p>
+          <p class="text-2xl font-bold text-gray-800">{{ dashboard()!.pendingPolicies }}</p>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
+        <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center shrink-0">
+          <span class="material-icons text-green-600 text-2xl">verified</span>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Approved Claims</p>
+          <p class="text-2xl font-bold text-gray-800">{{ dashboard()!.approvedClaims }}</p>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
+        <div class="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
+          <span class="material-icons text-amber-600 text-2xl">hourglass_empty</span>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Pending Claims</p>
+          <p class="text-2xl font-bold text-gray-800">{{ dashboard()!.pendingClaims }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 5: Risk Pool Summary Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-100">
+        <h3 class="text-base font-semibold text-gray-800">Risk Pool Summary</h3>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-50 border-b border-gray-100">
+            <tr>
+              <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Disaster Type</th>
+              <th class="text-right px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Premium Collected</th>
+              <th class="text-right px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Claims Paid</th>
+              <th class="text-center px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Pool Status</th>
+              <th class="text-center px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Critical?</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-50">
+            @for (pool of dashboard()!.riskPoolSummary; track pool.disasterType) {
+              <tr [class]="pool.criticalFlag ? 'bg-red-50' : 'hover:bg-gray-50'" class="transition-colors">
+                <td class="px-6 py-4 font-medium text-gray-800">{{ pool.disasterType }}</td>
+                <td class="px-6 py-4 text-right text-gray-700">{{ formatCurrency(pool.totalPremiumCollected) }}</td>
+                <td class="px-6 py-4 text-right text-gray-700">{{ formatCurrency(pool.totalClaimsPaid) }}</td>
+                <td class="px-6 py-4 text-center">
+                  <span class="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold" [class]="getStatusClass(pool.poolStatus)">
+                    {{ pool.poolStatus }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-center">
+                  @if (pool.criticalFlag) {
+                    <span class="material-icons text-red-500 text-lg">warning</span>
+                  } @else {
+                    <span class="material-icons text-green-400 text-lg">check_circle</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+}

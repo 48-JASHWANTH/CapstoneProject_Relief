@@ -1,0 +1,112 @@
+<div class="p-6 space-y-6">
+
+  <!-- Success Toast -->
+  @if (successMsg()) {
+    <div class="flex items-center gap-3 px-4 py-3 bg-green-50 border border-green-200 rounded-xl">
+      <span class="material-icons text-green-600 text-lg">check_circle</span>
+      <p class="text-sm text-green-700 flex-1">{{ successMsg() }}</p>
+      <button (click)="dismissSuccess()" class="text-green-500 hover:text-green-700">
+        <span class="material-icons text-lg">close</span>
+      </button>
+    </div>
+  }
+
+  <!-- Header -->
+  <div class="flex items-center justify-between flex-wrap gap-4">
+    <div>
+      <h1 class="text-xl font-bold text-gray-800">My Claims</h1>
+      <p class="text-sm text-gray-500 mt-0.5">Track the status of your filed claims</p>
+    </div>
+    <a routerLink="/customer/claims/new"
+      class="flex items-center gap-2 px-4 py-2.5 bg-[#853953] hover:bg-[#612D53] text-white text-sm font-semibold rounded-xl transition-colors">
+      <span class="material-icons text-sm">report</span>
+      File New Claim
+    </a>
+  </div>
+
+  <!-- Filter -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 px-5 py-4 flex items-center gap-3">
+    <span class="material-icons text-gray-400 text-lg">filter_list</span>
+    <select [(ngModel)]="filterStatus" (ngModelChange)="applyFilter()"
+      class="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#853953] focus:ring-2 focus:ring-[#F3F4F4]">
+      @for (s of statuses; track s) {
+        <option [value]="s">{{ s === 'ALL' ? 'All Statuses' : s.replace('_', ' ') }}</option>
+      }
+    </select>
+    <span class="ml-auto text-sm text-gray-500">{{ filtered().length }} claim{{ filtered().length !== 1 ? 's' : '' }}</span>
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="flex items-center justify-center py-16">
+      <div class="w-10 h-10 border-4 border-[#853953] border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  }
+
+  <!-- Table -->
+  @if (!loading()) {
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      @if (filtered().length === 0) {
+        <div class="flex flex-col items-center justify-center py-16 text-gray-400">
+          <span class="material-icons text-5xl mb-3">description</span>
+          <p class="text-sm">No claims found.</p>
+          <a routerLink="/customer/claims/new"
+            class="mt-3 px-4 py-2 bg-[#853953] hover:bg-[#612D53] text-white text-xs font-semibold rounded-xl transition-colors">
+            File a Claim
+          </a>
+        </div>
+      } @else {
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Claim #</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Policy #</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Type</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Description</th>
+                <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Est. Loss</th>
+                <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Approved</th>
+                <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Officer Remarks</th>
+                <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Filed</th>
+                <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Resolved</th>
+                <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">View</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+              @for (c of filtered(); track c.id) {
+                <tr class="hover:bg-gray-50 transition-colors">
+                  <td class="px-4 py-3 font-mono text-xs font-bold text-gray-700">{{ c.claimNumber }}</td>
+                  <td class="px-4 py-3 text-xs text-gray-600">{{ c.policyNumber }}</td>
+                  <td class="px-4 py-3 text-xs text-gray-600">{{ c.disasterType ?? '—' }}</td>
+                  <td class="px-4 py-3 text-xs text-gray-600 max-w-[160px] truncate" [title]="c.description">{{ c.description }}</td>
+                  <td class="px-4 py-3 text-right text-xs font-semibold text-gray-800">₹{{ c.estimatedLoss.toLocaleString() }}</td>
+                  <td class="px-4 py-3 text-right text-xs">
+                    @if (c.approvedAmount != null) {
+                      <span class="text-green-700 font-semibold">₹{{ c.approvedAmount.toLocaleString() }}</span>
+                    } @else {
+                      <span class="text-gray-400">—</span>
+                    }
+                  </td>
+                  <td class="px-4 py-3 text-center">
+                    <span class="px-2 py-0.5 text-xs font-semibold rounded-full" [class]="statusClass(c.status)">{{ c.status.replace('_',' ') }}</span>
+                  </td>
+                  <td class="px-4 py-3 text-xs text-gray-500 max-w-[150px] truncate" [title]="c.officerRemarks ?? ''">{{ c.officerRemarks ?? '—' }}</td>
+                  <td class="px-4 py-3 text-center text-xs text-gray-500 whitespace-nowrap">{{ c.filedDate | date:'d MMM y' }}</td>
+                  <td class="px-4 py-3 text-center text-xs text-gray-500 whitespace-nowrap">{{ c.resolvedDate ? (c.resolvedDate | date:'d MMM y') : '—' }}</td>
+                  <td class="px-4 py-3 text-center">
+                    <a [routerLink]="['/customer/claims', c.id]"
+                      class="p-1.5 text-gray-400 hover:text-[#853953] hover:bg-[#F3F4F4] rounded-lg transition-colors inline-flex">
+                      <span class="material-icons text-base">open_in_new</span>
+                    </a>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+
+</div>

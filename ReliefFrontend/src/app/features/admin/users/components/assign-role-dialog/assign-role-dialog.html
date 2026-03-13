@@ -1,0 +1,20 @@
+<div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
+    <h3 class="text-lg font-semibold text-gray-800 mb-1">Assign Role</h3>
+    <p class="text-sm text-gray-500 mb-5">{{ user.name }}</p>
+    <div class="flex flex-wrap gap-2 mb-6">
+      @for (role of availableRoles; track role) {
+        <button type="button"
+          (click)="selectRole(role)"
+          [class]="selectedRole === role
+            ? 'px-3 py-1.5 rounded-lg text-xs font-semibold border-2 border-[#853953] bg-[#853953] text-white'
+            : 'px-3 py-1.5 rounded-lg text-xs font-semibold border border-gray-200 text-gray-600 hover:border-[#853953] hover:text-[#853953]'"
+        >{{ role }}</button>
+      }
+    </div>
+    <div class="flex gap-3 justify-end">
+      <button (click)="onCancel()" class="px-4 py-2 text-sm text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50">Cancel</button>
+      <button (click)="onSave()" [disabled]="!selectedRole" class="px-4 py-2 text-sm text-white bg-[#853953] rounded-lg hover:bg-[#612D53] disabled:opacity-50 disabled:cursor-not-allowed">Assign</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,32 @@
+@if (policy) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4">
+      <div class="px-6 py-5 border-b border-gray-100">
+        <h2 class="text-lg font-bold text-gray-800">Confirm Premium Payment</h2>
+        <p class="text-xs text-gray-500 mt-0.5">{{ policy.policyNumber }} &bull; {{ policy.disasterType }}</p>
+      </div>
+      <div class="px-6 py-5 space-y-4">
+        <div class="bg-amber-50 border border-amber-200 rounded-xl px-4 py-4 text-center">
+          <p class="text-xs text-amber-600 mb-1">Premium Amount</p>
+          <p class="text-3xl font-bold text-amber-700">₹{{ policy.premiumAmount.toLocaleString() }}</p>
+        </div>
+        <p class="text-sm text-gray-600 text-center">
+          Pay <strong>₹{{ policy.premiumAmount.toLocaleString() }}</strong> for policy
+          <strong>{{ policy.policyNumber }}</strong>?
+        </p>
+        <p class="text-xs text-gray-400 text-center">After payment, your policy status will change to <strong>ACTIVE</strong>.</p>
+      </div>
+      <div class="px-6 py-4 border-t border-gray-100 flex gap-3">
+        <button (click)="cancel.emit()"
+          class="flex-1 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">
+          Cancel
+        </button>
+        <button (click)="confirm.emit()"
+          class="flex-1 py-2.5 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-xl transition-colors flex items-center justify-center gap-1.5">
+          <span class="material-icons text-sm">payment</span>
+          Pay Now
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,351 @@
+<!-- ============================================================
+  NAVBAR
+============================================================ -->
+<header class="fixed top-0 inset-x-0 z-50 bg-white/90 backdrop-blur border-b border-gray-100 shadow-sm">
+  <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+    <!-- Logo -->
+    <a routerLink="/" class="flex items-center gap-2.5">
+      <div class="w-9 h-9 bg-[#853953] rounded-xl flex items-center justify-center">
+        <span class="material-icons text-white text-xl">shield</span>
+      </div>
+      <span class="text-xl font-bold text-[#853953] tracking-tight">Relief<span class="text-[#612D53] font-extrabold">.</span></span>
+    </a>
+    <!-- Nav links -->
+    <nav class="hidden md:flex items-center gap-7 text-sm font-medium text-gray-500">
+      <button (click)="scrollTo('about')" class="hover:text-[#853953] transition-colors">About</button>
+      <button (click)="scrollTo('services')" class="hover:text-[#853953] transition-colors">Services</button>
+      <button (click)="scrollTo('why-us')" class="hover:text-[#853953] transition-colors">Why Us</button>
+      <button (click)="scrollTo('contact')" class="hover:text-[#853953] transition-colors">Contact</button>
+    </nav>
+    <!-- Auth actions -->
+    <div class="flex items-center gap-3">
+      <!-- Login dropdown -->
+      <div id="login-menu" class="relative">
+        <button (click)="toggleLogin()" class="flex items-center gap-1.5 px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:border-[#853953] hover:text-[#853953] transition-all">
+          <span class="material-icons text-sm">login</span> Login
+          <span class="material-icons text-sm transition-transform" [class.rotate-180]="loginOpen">expand_more</span>
+        </button>
+        @if (loginOpen) {
+          <div class="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+            <a routerLink="/customer-login" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition-colors">
+              <span class="material-icons text-amber-500 text-lg">person</span>
+              <div><div class="font-medium">Customer Login</div><div class="text-xs text-gray-400">Manage your policies</div></div>
+            </a>
+            <a routerLink="/staff-login" class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-[#F3F4F4] hover:text-[#612D53] transition-colors">
+              <span class="material-icons text-[#853953] text-lg">badge</span>
+              <div><div class="font-medium">Staff Login</div><div class="text-xs text-gray-400">Admin / Agent / Officer</div></div>
+            </a>
+          </div>
+        }
+      </div>
+      <a routerLink="/register" class="px-4 py-2 bg-[#853953] hover:bg-[#612D53] text-white rounded-xl text-sm font-semibold transition-colors shadow-sm">
+        Get Started
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- ============================================================
+  HERO
+============================================================ -->
+<section class="relative min-h-screen bg-linear-to-br from-[#612D53] via-[#853953] to-[#612D53] flex items-center overflow-hidden pt-16">
+  <!-- Decorative shapes -->
+  <div class="absolute inset-0 pointer-events-none">
+    <div class="absolute top-20 -right-25 w-125 h-125 bg-[#612D53]/30 rounded-full blur-3xl"></div>
+    <div class="absolute -bottom-20 -left-20 w-80 h-80 bg-white/5 rounded-full"></div>
+    <div class="absolute top-1/3 left-1/4 w-2 h-2 bg-white/40 rounded-full opacity-60"></div>
+    <div class="absolute top-1/2 right-1/3 w-1.5 h-1.5 bg-amber-400 rounded-full opacity-50"></div>
+    <div class="absolute bottom-1/3 right-1/4 w-2 h-2 bg-white/30 rounded-full"></div>
+  </div>
+  <div class="relative z-10 max-w-7xl mx-auto px-6 py-24 grid lg:grid-cols-2 gap-16 items-center">
+    <!-- Text -->
+    <div>
+      <span class="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-white text-xs font-semibold px-3 py-1.5 rounded-full mb-6">
+        <span class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span> Trusted disaster relief coverage
+      </span>
+      <h1 class="text-5xl lg:text-6xl font-extrabold text-white leading-tight">
+        Disaster Relief<br>
+        <span class="text-white">Insurance</span><br>
+        <span class="text-amber-300 text-4xl font-light">Reimagined</span>
+      </h1>
+      <p class="text-white/60 text-lg mt-6 leading-relaxed max-w-lg">
+        Relief provides fast, transparent coverage against floods, earthquakes, wildfires, and other natural disasters â€” protecting what matters most when you need it most.
+      </p>
+      <div class="flex flex-wrap gap-4 mt-10">
+        <a routerLink="/register" class="flex items-center gap-2 px-7 py-3.5 bg-amber-500 hover:bg-amber-600 text-white rounded-2xl font-semibold text-sm transition-all shadow-lg shadow-amber-500/40">
+          <span class="material-icons text-sm">rocket_launch</span> Get Your Policy
+        </a>
+        <button (click)="scrollTo('services')" class="flex items-center gap-2 px-7 py-3.5 bg-white/10 hover:bg-white/20 text-white rounded-2xl font-semibold text-sm transition-all border border-white/20">
+          <span class="material-icons text-sm">info</span> Learn More
+        </button>
+      </div>
+
+    </div>
+    <!-- Hero right visual card -->
+    <div class="hidden lg:flex justify-center items-center">
+      <div class="relative">
+        <!-- Policy card -->
+        <div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-3xl p-8 w-80 shadow-2xl">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="w-12 h-12 bg-amber-500 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-500/40">
+              <span class="material-icons text-white">shield</span>
+            </div>
+            <div>
+              <div class="text-white font-bold text-sm">Relief Policy</div>
+              <div class="text-white/50 text-xs">Premium Coverage</div>
+            </div>
+          </div>
+          <div class="space-y-3">
+            <div class="flex justify-between items-center py-3 border-b border-white/10">
+              <span class="text-white/60 text-xs">Coverage Type</span>
+              <span class="text-white text-sm font-semibold">Flood + Wildfire</span>
+            </div>
+            <div class="flex justify-between items-center py-3 border-b border-white/10">
+              <span class="text-white/60 text-xs">Sum Insured</span>
+              <span class="text-amber-400 text-sm font-bold">$250,000</span>
+            </div>
+            <div class="flex justify-between items-center py-3">
+              <span class="text-white/60 text-xs">Status</span>
+              <span class="flex items-center gap-1.5 text-emerald-400 text-xs font-semibold">
+                <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span>Active
+              </span>
+            </div>
+          </div>
+        </div>
+        <!-- Floating claim badge -->
+        <div class="absolute -top-4 -right-4 bg-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1">
+          <span class="material-icons text-xs">check_circle</span> Claim Approved
+        </div>
+        <!-- Floating stat pill -->
+        <div class="absolute -bottom-5 -left-5 bg-white rounded-2xl px-4 py-3 shadow-xl flex items-center gap-2.5">
+          <div class="w-8 h-8 bg-amber-100 rounded-xl flex items-center justify-center">
+            <span class="material-icons text-amber-500 text-sm">people</span>
+          </div>
+          <div>
+            <div class="text-xs font-bold text-gray-800">50,000+</div>
+            <div class="text-xs text-gray-400">Active Policies</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+  STATS STRIP
+============================================================ -->
+<div class="bg-[#612D53] py-10">
+  <div class="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+    <div>
+      <div class="text-3xl font-extrabold text-amber-400 mb-1">50K+</div>
+      <div class="text-white/60 text-sm">Active Policies</div>
+    </div>
+    <div>
+      <div class="text-3xl font-extrabold text-amber-400 mb-1">98%</div>
+      <div class="text-white/60 text-sm">Claim Approval Rate</div>
+    </div>
+    <div>
+      <div class="text-3xl font-extrabold text-amber-400 mb-1">24h</div>
+      <div class="text-white/60 text-sm">Average Claim Time</div>
+    </div>
+    <div>
+      <div class="text-3xl font-extrabold text-amber-400 mb-1">$2B+</div>
+      <div class="text-white/60 text-sm">Claims Paid Out</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+  ABOUT
+============================================================ -->
+<section id="about" class="py-24 bg-white">
+  <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
+    <div class="space-y-6">
+      <span class="text-xs font-bold uppercase tracking-widest text-[#853953]">About Relief</span>
+      <h2 class="text-4xl font-bold text-gray-900 leading-tight">
+        We Exist to Protect Communities<br><span class="text-[#853953]">When Disasters Strike</span>
+      </h2>
+      <p class="text-gray-500 leading-relaxed">
+        Founded in 2018, Relief Insurance was built on a simple idea: when a natural disaster upends your life, you shouldn't have to fight for your recovery. We combine intelligent risk pooling with rapid claims processing to deliver financial peace of mind to families, homeowners, and businesses across high-risk zones.
+      </p>
+      <p class="text-gray-500 leading-relaxed">
+        Our platform connects policyholders, certified agents, and claims officers in one unified experience â€” making disaster recovery faster, fairer, and fully transparent.
+      </p>
+      <div class="flex gap-6 pt-2">
+        <div class="text-center">
+          <div class="text-3xl font-extrabold text-[#853953]">2018</div>
+          <div class="text-xs text-gray-400 mt-1">Founded</div>
+        </div>
+        <div class="w-px bg-gray-100"></div>
+        <div class="text-center">
+          <div class="text-3xl font-extrabold text-[#853953]">30+</div>
+          <div class="text-xs text-gray-400 mt-1">States Covered</div>
+        </div>
+        <div class="w-px bg-gray-100"></div>
+        <div class="text-center">
+          <div class="text-3xl font-extrabold text-[#853953]">1,200+</div>
+          <div class="text-xs text-gray-400 mt-1">Certified Agents</div>
+        </div>
+      </div>
+    </div>
+    <!-- Feature list -->
+    <div class="grid grid-cols-2 gap-4">
+      @for (item of [
+        {icon:'verified_user', title:'Licensed & Regulated', text:'Fully licensed under state insurance regulations with transparent governance.'},
+        {icon:'speed', title:'Fast Claims', text:'Average claim resolution in 5 business days â€” see it in real time.'},
+        {icon:'support_agent', title:'Dedicated Agents', text:'Local agents who know your region\'s risks and can tailor your coverage.'},
+        {icon:'lock', title:'Secure Platform', text:'Bank-grade security protecting your personal and policy data 24/7.'}
+      ]; track item.title) {
+        <div class="bg-gray-50 rounded-2xl p-5">
+          <div class="w-10 h-10 bg-[#853953]/10 rounded-xl flex items-center justify-center mb-3">
+            <span class="material-icons text-[#853953]">{{ item.icon }}</span>
+          </div>
+          <div class="font-semibold text-gray-800 text-sm mb-1">{{ item.title }}</div>
+          <div class="text-xs text-gray-500 leading-relaxed">{{ item.text }}</div>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+  SERVICES
+============================================================ -->
+<section id="services" class="py-24 bg-gray-50">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center mb-14">
+      <span class="text-xs font-bold uppercase tracking-widest text-[#853953]">What We Cover</span>
+      <h2 class="text-4xl font-bold text-gray-900 mt-2">Our Services</h2>
+      <p class="text-gray-500 mt-3 max-w-xl mx-auto text-sm leading-relaxed">Comprehensive disaster insurance tailored to your property type, location risk, and financial needs.</p>
+    </div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (svc of [
+        {icon:'water', color:'bg-[#F3F4F4] text-[#853953]', badge:'bg-[#F3F4F4] text-[#612D53]', label:'Flood Insurance', desc:'Full protection against rising water levels, flash floods, coastal surges, and storm drainage overflow.', tags:['Residential','Commercial','Coastal']},
+        {icon:'terrain', color:'bg-amber-100 text-amber-600', badge:'bg-amber-50 text-amber-700', label:'Earthquake Insurance', desc:'Structural and content coverage for seismic events, aftershocks, and ground liquefaction damage.', tags:['Homeowners','Business','High-Risk Zones']},
+        {icon:'local_fire_department', color:'bg-red-100 text-red-600', badge:'bg-red-50 text-red-700', label:'Wildfire Coverage', desc:'Protect structures and belongings from wildfire destruction, smoke damage and evacuation losses.', tags:['Forest Areas','Residential','Farms']},
+        {icon:'storm', color:'bg-purple-100 text-purple-600', badge:'bg-purple-50 text-purple-700', label:'Hurricane & Storm', desc:'Wind, hail, and storm surge coverage for properties in hurricane-prone coastal and inland zones.', tags:['Coastal','Inland','Agricultural']},
+        {icon:'landslide', color:'bg-orange-100 text-orange-600', badge:'bg-orange-50 text-orange-700', label:'Landslide & Debris', desc:'Coverage for soil movement, mudflows, and debris avalanche damage to structures and land.', tags:['Mountain Regions','Rural','Slope Properties']},
+        {icon:'policy', color:'bg-[#F3F4F4] text-[#853953]', badge:'bg-[#F3F4F4] text-[#612D53]', label:'Custom Risk Pools', desc:'Pooled risk solutions for communities, HOAs, and municipalities seeking collective disaster protection.', tags:['Communities','HOAs','Municipal']}
+      ]; track svc.label) {
+        <div class="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow border border-gray-100 flex flex-col">
+          <div [class]="'w-12 h-12 ' + svc.color + ' rounded-2xl flex items-center justify-center mb-4'">
+            <span class="material-icons text-xl">{{ svc.icon }}</span>
+          </div>
+          <h3 class="font-semibold text-gray-900 text-base mb-2">{{ svc.label }}</h3>
+          <p class="text-gray-500 text-sm leading-relaxed flex-1">{{ svc.desc }}</p>
+          <div class="flex flex-wrap gap-1.5 mt-4">
+            @for (tag of svc.tags; track tag) {
+              <span [class]="'text-xs px-2 py-0.5 rounded-full font-medium ' + svc.badge">{{ tag }}</span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+  WHY CHOOSE US
+============================================================ -->
+<section id="why-us" class="py-24 bg-[#853953] relative overflow-hidden">
+  <div class="pointer-events-none absolute inset-0">
+    <div class="absolute -top-20 -right-20 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
+    <div class="absolute -bottom-10 -left-10 w-64 h-64 bg-white/5 rounded-full"></div>
+  </div>
+  <div class="relative z-10 max-w-7xl mx-auto px-6">
+    <div class="text-center mb-14">
+      <span class="text-xs font-bold uppercase tracking-widest text-white/70">Our Advantages</span>
+      <h2 class="text-4xl font-bold text-white mt-2">Why Choose Relief?</h2>
+      <p class="text-white/50 mt-3 max-w-lg mx-auto text-sm">We are not just another insurance company â€” we are your recovery partners.</p>
+    </div>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (item of [
+        {num:'01', icon:'bolt', title:'Instant Policy Issuance', text:'Get fully activated policies in minutes, not days. Our digital-first workflow removes all the paperwork.'},
+        {num:'02', icon:'timeline', title:'Real-Time Claim Tracking', text:'Follow every step of your claim on a live dashboard â€” no more waiting on hold for status updates.'},
+        {num:'03', icon:'savings', title:'Risk Pool Efficiency', text:'Shared risk pools mean lower premiums for you while ensuring maximum payout when you need it.'},
+        {num:'04', icon:'people', title:'Expert Local Agents', text:'Our network of 1,200+ certified local agents provide personalized guidance for your specific region.'},
+        {num:'05', icon:'gavel', title:'Fair & Transparent Claims', text:'Licensed claims officers assess every case with documented criteria â€” no arbitrary denials.'},
+        {num:'06', icon:'eco', title:'Community-First Mission', text:'A portion of every premium funds disaster preparedness initiatives in the communities we serve.'}
+      ]; track item.num) {
+        <div class="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-colors">
+          <div class="flex items-start gap-4">
+            <div class="shrink-0 w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center">
+              <span class="material-icons text-white">{{ item.icon }}</span>
+            </div>
+            <div>
+              <div class="text-xs font-bold text-white/60 mb-1"># {{ item.num }}</div>
+              <h3 class="font-semibold text-white text-sm mb-2">{{ item.title }}</h3>
+              <p class="text-white/50 text-xs leading-relaxed">{{ item.text }}</p>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+  CTA BANNER
+============================================================ -->
+<section id="contact" class="py-20 bg-[#853953]">
+  <div class="max-w-4xl mx-auto px-6 text-center">
+    <h2 class="text-4xl font-extrabold text-white mb-4">Ready to Protect What Matters?</h2>
+    <p class="text-white/80 text-base mb-8 max-w-xl mx-auto">Join thousands of policyholders who trust Relief Insurance for fast, fair disaster coverage. Get started in minutes.</p>
+    <div class="flex flex-wrap gap-4 justify-center">
+      <a routerLink="/register" class="flex items-center gap-2 px-8 py-4 bg-white text-[#853953] rounded-2xl font-bold text-sm hover:bg-gray-50 transition-colors shadow-lg">
+        <span class="material-icons text-sm">rocket_launch</span> Create Free Account
+      </a>
+      <a routerLink="/customer-login" class="flex items-center gap-2 px-8 py-4 bg-white/20 text-white border border-white/30 rounded-2xl font-semibold text-sm hover:bg-white/30 transition-colors">
+        <span class="material-icons text-sm">login</span> Sign In
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+  FOOTER
+============================================================ -->
+<footer class="bg-[#612D53] text-white/50 py-12">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="grid md:grid-cols-4 gap-8 mb-10">
+      <div class="col-span-2 md:col-span-1">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-8 h-8 bg-[#853953] rounded-lg flex items-center justify-center"><span class="material-icons text-white text-lg">shield</span></div>
+          <span class="text-white font-bold text-lg">Relief<span class="text-[#F3F4F4]/70">.</span></span>
+        </div>
+        <p class="text-xs leading-relaxed">Disaster insurance reimagined for the modern world.</p>
+      </div>
+      <div>
+        <h4 class="text-white font-semibold text-sm mb-3">Product</h4>
+        <ul class="space-y-2 text-sm">
+          <li><button (click)="scrollTo('services')" class="hover:text-white transition-colors">Services</button></li>
+          <li><button (click)="scrollTo('why-us')" class="hover:text-white transition-colors">Why Relief</button></li>
+          <li><a routerLink="/register" class="hover:text-white transition-colors">Get a Quote</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-white font-semibold text-sm mb-3">Portal</h4>
+        <ul class="space-y-2 text-sm">
+          <li><a routerLink="/customer-login" class="hover:text-white transition-colors">Customer Login</a></li>
+          <li><a routerLink="/staff-login" class="hover:text-white transition-colors">Staff Login</a></li>
+          <li><a routerLink="/register" class="hover:text-white transition-colors">Register</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-white font-semibold text-sm mb-3">Contact</h4>
+        <ul class="space-y-2 text-sm">
+          <li class="flex items-center gap-1.5"><span class="material-icons text-xs">mail</span> support&#64;relief.com</li>
+          <li class="flex items-center gap-1.5"><span class="material-icons text-xs">phone</span> 1-800-RELIEF-1</li>
+          <li class="flex items-center gap-1.5"><span class="material-icons text-xs">location_on</span> Hartford, CT 06101</li>
+        </ul>
+      </div>
+    </div>
+    <div class="border-t border-white/10 pt-6 flex flex-col md:flex-row items-center justify-between gap-2 text-xs">
+      <span>&copy; 2026 Relief Insurance Platform. All rights reserved.</span>
+      <div class="flex gap-4">
+        <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+        <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
+      </div>
+    </div>
+  </div>
+</footer>

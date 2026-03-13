@@ -1,0 +1,113 @@
+<div class="p-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-800">My Policies</h1>
+      <p class="text-sm text-gray-500 mt-0.5">Manage and review policies assigned to you</p>
+    </div>
+  </div>
+
+  <!-- Success Toast -->
+  @if (successMsg()) {
+      <div class="fixed top-5 right-5 z-50 bg-[#853953] text-white px-5 py-3 rounded-xl shadow-lg flex items-center gap-2 text-sm font-medium">
+      <span class="material-icons text-sm">check_circle</span> {{ successMsg() }}
+    </div>
+  }
+
+  <!-- Error Toast -->
+  @if (errorMsg()) {
+    <div class="fixed top-5 right-5 z-50 bg-red-600 text-white px-5 py-3 rounded-xl shadow-lg flex items-center gap-2 text-sm font-medium">
+      <span class="material-icons text-sm">error</span> {{ errorMsg() }}
+    </div>
+  }
+
+  <!-- Filters -->
+  <div class="bg-white rounded-xl shadow-sm p-4 mb-6 flex gap-3 flex-wrap items-center">
+    <div class="flex-1 min-w-48 relative">
+      <span class="material-icons absolute left-3 top-2 text-gray-400 text-lg">search</span>
+      <input [(ngModel)]="searchText" (ngModelChange)="applyFilters()" type="text" placeholder="Search by policy # or customer..."
+        class="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#853953]/30">
+    </div>
+    <select [(ngModel)]="filterStatus" (ngModelChange)="applyFilters()" class="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+      @for (s of statuses; track s) { <option [value]="s">{{ s }}</option> }
+    </select>
+    <span class="text-sm text-gray-500">{{ filtered().length }} result(s)</span>
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="flex items-center justify-center h-48">
+      <div class="w-10 h-10 border-4 border-[#853953] border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  } @else {
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-50 border-b border-gray-100">
+            <tr>
+              <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Policy #</th>
+              <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Customer</th>
+              <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Disaster</th>
+              <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Type</th>
+              <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Property Value</th>
+              <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Sum Insured</th>
+              <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Premium</th>
+              <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Status</th>
+              <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-50">
+            @for (p of paginated; track p.id) {
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-5 py-4 font-mono text-xs text-gray-600">{{ p.policyNumber }}</td>
+                <td class="px-5 py-4">
+                  <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 bg-[#853953] rounded-full flex items-center justify-center text-white text-xs font-medium">{{ p.userName.charAt(0) }}</div>
+                    <span class="text-gray-700 text-sm">{{ p.userName }}</span>
+                  </div>
+                </td>
+                <td class="px-5 py-4"><span [class]="'px-2 py-0.5 rounded-full text-xs font-medium ' + disasterClass(p.disasterType)">{{ p.disasterType }}</span></td>
+                <td class="px-5 py-4 text-gray-600 text-xs">{{ p.policyType }}</td>
+                <td class="px-5 py-4 text-gray-700 text-sm">{{ formatCurrency(p.propertyValue) }}</td>
+                <td class="px-5 py-4 text-gray-700 text-sm">{{ formatCurrency(p.sumInsured) }}</td>
+                <td class="px-5 py-4 font-semibold text-gray-800 text-sm">{{ formatCurrency(p.premiumAmount) }}</td>
+                <td class="px-5 py-4"><span [class]="'px-2 py-0.5 rounded-full text-xs font-semibold ' + statusClass(p.status)">{{ p.status }}</span></td>
+                <td class="px-5 py-4">
+                  <div class="flex items-center gap-1">
+                    @if (p.status === 'PENDING') {
+                      <button (click)="openAdjust(p)" class="p-1.5 text-[#853953] hover:bg-[#F3F4F4] rounded-lg transition-colors" title="Adjust Premium">
+                        <span class="material-icons text-sm">tune</span>
+                      </button>
+                    }
+
+                    <button (click)="viewDetail(p)" class="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors" title="View Detail">
+                      <span class="material-icons text-sm">open_in_new</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr><td colspan="9" class="px-5 py-16 text-center text-gray-400">
+                <span class="material-icons text-5xl block mb-2">policy</span> No policies found
+              </td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <!-- Pagination -->
+      @if (totalPages > 1) {
+        <div class="px-5 py-3 border-t border-gray-100 flex items-center justify-between bg-gray-50">
+          <span class="text-xs text-gray-500">Page {{ page() + 1 }} of {{ totalPages }}</span>
+          <div class="flex gap-2">
+            <button (click)="page.set(page() - 1)" [disabled]="page() === 0" class="px-3 py-1 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-white">Prev</button>
+            <button (click)="page.set(page() + 1)" [disabled]="page() >= totalPages - 1" class="px-3 py-1 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-white">Next</button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+@if (showAdjustDialog()) {
+  <app-adjust-premium-dialog [policy]="selectedPolicy()" [agentId]="agentId" [policyId]="selectedPolicy()!.id" (save)="onAdjustSaved($event)" (cancel)="showAdjustDialog.set(false)"></app-adjust-premium-dialog>
+}

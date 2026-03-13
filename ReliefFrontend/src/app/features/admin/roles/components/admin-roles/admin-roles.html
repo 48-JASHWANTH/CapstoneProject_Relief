@@ -1,0 +1,111 @@
+<div class="p-6">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-800">Roles Management</h1>
+      <p class="text-sm text-gray-500 mt-0.5">Define and manage system access roles</p>
+    </div>
+    <button (click)="openCreate()" class="flex items-center gap-2 bg-[#853953] text-white px-4 py-2 rounded-lg hover:bg-[#612D53] transition-colors text-sm font-medium shadow-sm">
+      <span class="material-icons text-base">add</span> Add Role
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="flex items-center justify-center h-48">
+      <div class="w-10 h-10 border-4 border-[#853953] border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  } @else {
+    <!-- Role Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      @for (role of roles(); track role.id) {
+        <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100 hover:shadow-md transition-shadow">
+          <div class="flex items-start justify-between mb-3">
+            <div class="w-10 h-10 bg-[#853953] rounded-xl flex items-center justify-center">
+              <span class="material-icons text-white text-lg">admin_panel_settings</span>
+            </div>
+            <div class="flex gap-1">
+              <button (click)="openEdit(role)" class="p-1.5 text-gray-400 hover:text-[#853953] hover:bg-[#F3F4F4] rounded-lg transition-colors">
+                <span class="material-icons text-sm">edit</span>
+              </button>
+              <button (click)="openDelete(role)" class="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                <span class="material-icons text-sm">delete_outline</span>
+              </button>
+            </div>
+          </div>
+          <span [class]="'inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold mb-2 ' + roleChipClass(role.name)">{{ role.name }}</span>
+          <p class="text-sm text-gray-500 leading-relaxed mt-1">{{ role.description }}</p>
+        </div>
+      } @empty {
+        <div class="col-span-4 py-16 text-center text-gray-400">
+          <span class="material-icons text-5xl block mb-2">manage_accounts</span>
+          No roles found
+        </div>
+      }
+    </div>
+
+    <!-- Roles Table -->
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-100">
+        <h2 class="text-base font-semibold text-gray-700">Role Definitions</h2>
+      </div>
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 border-b border-gray-100">
+          <tr>
+            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">#</th>
+            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Role Name</th>
+            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Description</th>
+            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-50">
+          @for (role of roles(); track role.id) {
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="px-6 py-4 text-gray-400 font-mono text-xs">{{ role.id }}</td>
+              <td class="px-6 py-4">
+                <span [class]="'px-2.5 py-0.5 rounded-full text-xs font-semibold ' + roleChipClass(role.name)">{{ role.name }}</span>
+              </td>
+              <td class="px-6 py-4 text-gray-600">{{ role.description }}</td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-2">
+                  <button (click)="openEdit(role)" class="p-1.5 text-[#853953] hover:bg-[#F3F4F4] rounded-lg transition-colors">
+                    <span class="material-icons text-sm">edit</span>
+                  </button>
+                  <button (click)="openDelete(role)" class="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                    <span class="material-icons text-sm">delete_outline</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+@if (showFormDialog()) {
+  <app-role-form-dialog [role]="selectedRole()" [isEdit]="isEdit()"
+    (save)="onFormSaved($event)" (cancel)="showFormDialog.set(false)">
+  </app-role-form-dialog>
+}
+
+@if (showConfirmDelete()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center">
+    <div class="absolute inset-0 bg-black/50" (click)="showConfirmDelete.set(false)"></div>
+    <div class="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm mx-4">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+          <span class="material-icons text-red-600">warning</span>
+        </div>
+        <div>
+          <h3 class="font-semibold text-gray-800">Delete Role</h3>
+          <p class="text-sm text-gray-500">This cannot be undone</p>
+        </div>
+      </div>
+      <p class="text-sm text-gray-600 mb-5">Delete role <strong>{{ selectedRole()?.name }}</strong>?</p>
+      <div class="flex gap-3">
+        <button (click)="showConfirmDelete.set(false)" class="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 transition-colors">Cancel</button>
+        <button (click)="confirmDelete()" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors">Delete</button>
+      </div>
+    </div>
+  </div>
+}

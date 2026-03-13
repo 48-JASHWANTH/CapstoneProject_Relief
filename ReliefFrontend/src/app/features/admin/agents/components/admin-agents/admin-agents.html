@@ -1,0 +1,83 @@
+<div class="space-y-5">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-800">Agent Management</h1>
+      <p class="text-gray-500 text-sm mt-1">Manage underwriters and their regions. New agents are created via User Management.</p>
+    </div>
+  </div>
+
+  <!-- Filter -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex gap-3">
+    <select
+      [(ngModel)]="filterRegion"
+      (ngModelChange)="applyFilters()"
+      class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#853953] bg-white"
+    >
+      <option value="ALL">All Regions</option>
+      <option value="NORTH">NORTH</option>
+      <option value="SOUTH">SOUTH</option>
+      <option value="EAST">EAST</option>
+      <option value="WEST">WEST</option>
+      <option value="CENTRAL">CENTRAL</option>
+    </select>
+  </div>
+
+  <!-- Table -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    @if (loading()) {
+      <div class="flex items-center justify-center h-48">
+        <div class="w-8 h-8 border-4 border-[#853953] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    } @else {
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 border-b border-gray-100">
+          <tr>
+            <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">#</th>
+            <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Agent Name</th>
+            <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Email</th>
+            <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">License</th>
+            <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Region</th>
+            <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Policies</th>
+            <th class="text-center px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-50">
+          @for (agent of paginated; track agent.id; let i = $index) {
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="px-5 py-4 text-gray-400">{{ page() * pageSize + i + 1 }}</td>
+              <td class="px-5 py-4 font-medium text-gray-800">{{ agent.userName }}</td>
+              <td class="px-5 py-4 text-gray-600">{{ agent.userEmail }}</td>
+              <td class="px-5 py-4 font-mono text-gray-600">{{ agent.licenseNumber }}</td>
+              <td class="px-5 py-4">
+                <span class="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold bg-[#F3F4F4] text-[#612D53]">{{ agent.region }}</span>
+              </td>
+              <td class="px-5 py-4 text-center font-semibold text-gray-800">{{ agent.totalPolicies }}</td>
+              <td class="px-5 py-4">
+                <div class="flex items-center justify-center gap-2">
+                  <button (click)="openDelete(agent)" class="p-1.5 rounded-lg text-red-500 hover:bg-red-50 transition-colors" title="Delete Agent">
+                    <span class="material-icons text-base">delete</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="7" class="px-5 py-12 text-center text-gray-400">No agents found</td></tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</div>
+
+@if (showConfirmDelete() && selectedAgent()) {
+  <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+      <h3 class="text-lg font-semibold text-gray-800 mb-3">Delete Agent</h3>
+      <p class="text-gray-600 text-sm mb-6">Delete agent <span class="font-semibold">{{ selectedAgent()!.userName }}</span>?</p>
+      <div class="flex gap-3 justify-end">
+        <button (click)="showConfirmDelete.set(false)" class="px-4 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50">Cancel</button>
+        <button (click)="confirmDelete()" class="px-4 py-2 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700">Delete</button>
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,176 @@
+<div class="p-6 max-w-2xl mx-auto space-y-6">
+
+  <!-- Header -->
+  <div class="flex items-center gap-3">
+    <button (click)="cancel()"
+      class="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-500 hover:text-[#853953] hover:bg-[#F3F4F4] rounded-xl transition-colors">
+      <span class="material-icons text-lg">arrow_back</span>
+      Back to Policies
+    </button>
+  </div>
+
+  <div>
+    <h1 class="text-xl font-bold text-gray-800">Apply for New Policy</h1>
+    <p class="text-sm text-gray-500 mt-0.5">Fill in the details below to apply for insurance coverage</p>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+
+    <div class="px-6 py-5 space-y-5">
+
+      <!-- Disaster Type + Region -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Disaster Type <span class="text-red-500">*</span></label>
+          <select formControlName="disasterType"
+            class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[#853953] focus:ring-2 focus:ring-[#F3F4F4]"
+            [class.border-red-400]="invalid('disasterType')">
+            <option value="">Select disaster type...</option>
+            @for (d of disasterTypes; track d) {
+              <option [value]="d">{{ d }}</option>
+            }
+          </select>
+          @if (invalid('disasterType')) {
+            <p class="text-xs text-red-500 mt-1">Disaster type is required.</p>
+          }
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Region <span class="text-red-500">*</span></label>
+          <select formControlName="region"
+            class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[#853953] focus:ring-2 focus:ring-[#F3F4F4]"
+            [class.border-red-400]="invalid('region')">
+            <option value="">Select region...</option>
+            @for (r of regions; track r) {
+              <option [value]="r">{{ r }}</option>
+            }
+          </select>
+          @if (invalid('region')) {
+            <p class="text-xs text-red-500 mt-1">Region is required.</p>
+          }
+        </div>
+      </div>
+
+
+      <!-- Tenure -->
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Policy Tenure <span class="text-red-500">*</span></label>
+        <select formControlName="tenure"
+          class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[#853953] focus:ring-2 focus:ring-[#F3F4F4]"
+          [class.border-red-400]="invalid('tenure')">
+          @for (t of tenureOptions; track t) {
+            <option [value]="t">{{ t }} {{ t === 1 ? 'Year' : 'Years' }}</option>
+          }
+        </select>
+        @if (invalid('tenure')) {
+          <p class="text-xs text-red-500 mt-1">Tenure is required.</p>
+        }
+        <p class="text-xs text-gray-400 mt-1">Policy start date is today. End date is calculated automatically.</p>
+      </div>
+
+      <!-- Policy Type -->
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2">Policy Type <span class="text-red-500">*</span></label>
+        <div class="grid grid-cols-3 gap-3">
+          @for (pt of policyTypes; track pt.value) {
+            <label class="flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 cursor-pointer transition-all"
+              [class]="form.get('policyType')?.value === pt.value ? 'border-[#853953] bg-[#F3F4F4]' : 'border-gray-200 hover:border-[#853953]'">
+              <input type="radio" formControlName="policyType" [value]="pt.value" class="hidden">
+              <span class="text-sm font-bold" [class]="form.get('policyType')?.value === pt.value ? 'text-[#612D53]' : 'text-gray-700'">{{ pt.label }}</span>
+              <span class="text-xs text-center" [class]="form.get('policyType')?.value === pt.value ? 'text-[#853953]' : 'text-gray-400'">{{ pt.hint }}</span>
+            </label>
+          }
+        </div>
+      </div>
+
+      <!-- Property Address -->
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Property Address <span class="text-red-500">*</span></label>
+        <textarea formControlName="propertyAddress" rows="2"
+          placeholder="Full property address (min 10 characters)"
+          class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[#853953] focus:ring-2 focus:ring-[#F3F4F4] resize-none"
+          [class.border-red-400]="invalid('propertyAddress')"></textarea>
+        @if (invalid('propertyAddress') && field('propertyAddress').errors?.['required']) {
+          <p class="text-xs text-red-500 mt-1">Property address is required.</p>
+        } @else if (invalid('propertyAddress') && field('propertyAddress').errors?.['minlength']) {
+          <p class="text-xs text-red-500 mt-1">Property address must be at least 10 characters.</p>
+        } @else if (invalid('propertyAddress') && field('propertyAddress').errors?.['maxlength']) {
+          <p class="text-xs text-red-500 mt-1">Property address cannot exceed 300 characters.</p>
+        }
+      </div>
+
+      <!-- Property Value + Sum Insured -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Property Value (₹) <span class="text-red-500">*</span></label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">₹</span>
+            <input type="number" formControlName="propertyValue" (input)="onPropertyValueChange()"
+              placeholder="0" min="1"
+              class="w-full pl-7 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-[#853953] focus:ring-2 focus:ring-[#F3F4F4]"
+              [class.border-red-400]="invalid('propertyValue')">
+          </div>
+          @if (invalid('propertyValue')) {
+            <p class="text-xs text-red-500 mt-1">Property value must be greater than 0.</p>
+          }
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Sum Insured (₹) <span class="text-red-500">*</span></label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">₹</span>
+            <input type="number" formControlName="sumInsured" placeholder="0" min="1"
+              class="w-full pl-7 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-[#853953] focus:ring-2 focus:ring-[#F3F4F4]"
+              [class.border-red-400]="invalid('sumInsured')">
+          </div>
+          @if (invalid('sumInsured') && field('sumInsured').errors?.['required']) {
+            <p class="text-xs text-red-500 mt-1">Sum insured is required.</p>
+          }
+          @if (invalid('sumInsured') && field('sumInsured').errors?.['min']) {
+            <p class="text-xs text-red-500 mt-1">Sum insured must be greater than 0.</p>
+          }
+          @if (invalid('sumInsured') && field('sumInsured').errors?.['exceedsPropertyValue']) {
+            <p class="text-xs text-red-500 mt-1">Cannot exceed property value.</p>
+          }
+          @if (!invalid('sumInsured')) {
+            <p class="text-xs text-gray-400 mt-1">Cannot exceed property value.</p>
+          }
+        </div>
+      </div>
+
+      <!-- Premium Amount -->
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Premium Amount (₹) <span class="text-red-500">*</span></label>
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">₹</span>
+          <input type="number" formControlName="premiumAmount" placeholder="Enter your premium amount" min="1"
+            class="w-full pl-7 pr-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-[#853953] focus:ring-2 focus:ring-[#F3F4F4]"
+            [class.border-red-400]="invalid('premiumAmount')">
+        </div>
+        @if (invalid('premiumAmount') && field('premiumAmount').errors?.['required']) {
+          <p class="text-xs text-red-500 mt-1">Premium amount is required.</p>
+        } @else if (invalid('premiumAmount') && field('premiumAmount').errors?.['min']) {
+          <p class="text-xs text-red-500 mt-1">Premium amount must be greater than 0.</p>
+        } @else {
+          <p class="text-xs text-gray-400 mt-1">Specify the annual premium you wish to pay for this policy.</p>
+        }
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="px-6 py-4 border-t border-gray-100 flex justify-end gap-3">
+      <button type="button" (click)="cancel()"
+        class="px-5 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">
+        Cancel
+      </button>
+      <button type="submit" [disabled]="submitting()"
+        class="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-[#853953] hover:bg-[#612D53] disabled:bg-gray-300 rounded-xl transition-colors">
+        @if (submitting()) {
+          <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+        }
+        Submit Application
+      </button>
+    </div>
+
+  </form>
+
+</div>

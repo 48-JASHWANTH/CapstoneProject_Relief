@@ -1,0 +1,107 @@
+<div class="p-6 space-y-6 max-w-3xl mx-auto">
+
+  <button (click)="back()"
+    class="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-500 hover:text-[#853953] hover:bg-[#F3F4F4] rounded-xl transition-colors">
+    <span class="material-icons text-lg">arrow_back</span>
+    Back to Claims
+  </button>
+
+  @if (loading()) {
+    <div class="flex items-center justify-center py-24">
+      <div class="w-10 h-10 border-4 border-[#853953] border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  }
+
+  @if (!loading() && !claim()) {
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 py-16 flex flex-col items-center text-gray-400">
+      <span class="material-icons text-5xl mb-3">error_outline</span>
+      <p class="text-sm">Claim not found.</p>
+    </div>
+  }
+
+  @if (!loading() && claim()) {
+
+    <!-- Header -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 px-6 py-5">
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 bg-[#F3F4F4] rounded-2xl flex items-center justify-center">
+            <span class="material-icons text-[#853953] text-2xl">description</span>
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold text-gray-800 font-mono">{{ claim()!.claimNumber }}</h1>
+            <p class="text-sm text-gray-500">Policy: {{ claim()!.policyNumber }} &bull; Filed {{ claim()!.filedDate }}</p>
+          </div>
+        </div>
+        <span class="px-4 py-1.5 text-sm font-bold rounded-full" [class]="statusClass(claim()!.status)">
+          {{ claim()!.status.replace('_', ' ') }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Claim Info Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 px-5 py-4 space-y-3">
+        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Claim Details</p>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <p class="text-xs text-gray-400">Estimated Loss</p>
+            <p class="text-sm font-bold text-gray-800">₹{{ claim()!.estimatedLoss.toLocaleString() }}</p>
+          </div>
+          @if (claim()!.approvedAmount != null) {
+            <div>
+              <p class="text-xs text-gray-400">Approved Amount</p>
+              <p class="text-sm font-bold text-green-700">₹{{ claim()!.approvedAmount!.toLocaleString() }}</p>
+            </div>
+          }
+          <div>
+            <p class="text-xs text-gray-400">Filed Date</p>
+            <p class="text-sm text-gray-700">{{ claim()!.filedDate }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-400">Resolved Date</p>
+            <p class="text-sm text-gray-700">{{ claim()!.resolvedDate ?? 'â€”' }}</p>
+          </div>
+        </div>
+        <div>
+          <p class="text-xs text-gray-400 mb-0.5">Description</p>
+          <p class="text-sm text-gray-700 leading-relaxed">{{ claim()!.description }}</p>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 px-5 py-4">
+          <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Policy</p>
+          <p class="text-sm font-mono font-bold text-gray-800">{{ claim()!.policyNumber }}</p>
+        </div>
+
+        @if (claim()!.officerRemarks) {
+          <div class="bg-[#F3F4F4] border border-[#F3F4F4] rounded-2xl px-5 py-4">
+            <p class="text-xs text-[#853953] font-semibold uppercase tracking-wide mb-1">Officer Remarks</p>
+            <p class="text-sm text-[#2C2C2C]">{{ claim()!.officerRemarks }}</p>
+          </div>
+        }
+
+        <!-- Status Timeline -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 px-5 py-4">
+          <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Progress</p>
+          <div class="space-y-2">
+            @for (step of ['FILED','SURVEY_ASSIGNED','UNDER_REVIEW','APPROVED','PAID']; track step) {
+              <div class="flex items-center gap-3">
+                <div class="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
+                  [class]="step === claim()!.status ? 'bg-[#853953]' : ((['FILED','SURVEY_ASSIGNED','UNDER_REVIEW','APPROVED','PAID'].indexOf(step) <= ['FILED','SURVEY_ASSIGNED','UNDER_REVIEW','APPROVED','PAID'].indexOf(claim()!.status)) ? 'bg-green-400' : 'bg-gray-200')">
+                  <span class="material-icons text-white text-xs">
+                    {{ step === claim()!.status ? 'check_circle' : 'check' }}
+                  </span>
+                </div>
+                <span class="text-xs" [class]="step === claim()!.status ? 'font-bold text-[#853953]' : 'text-gray-500'">{{ step.replace('_', ' ') }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+  }
+
+</div>

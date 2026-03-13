@@ -1,0 +1,127 @@
+<div class="p-6">
+  <!-- Success Toast -->
+  @if (successMsg()) {
+    <div class="fixed top-5 right-5 z-50 bg-emerald-600 text-white px-5 py-3 rounded-xl shadow-lg flex items-center gap-2 text-sm font-medium">
+      <span class="material-icons text-sm">check_circle</span> {{ successMsg() }}
+    </div>
+  }
+
+  <!-- Error Toast -->
+  @if (errorMsg()) {
+    <div class="fixed top-5 right-5 z-50 bg-red-600 text-white px-5 py-3 rounded-xl shadow-lg flex items-center gap-2 text-sm font-medium">
+      <span class="material-icons text-sm">error</span> {{ errorMsg() }}
+    </div>
+  }
+
+  <!-- Back -->
+  <button (click)="back()" class="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 mb-6 transition-colors">
+    <span class="material-icons text-lg">arrow_back</span> Back to Policies
+  </button>
+
+  @if (loading()) {
+    <div class="flex items-center justify-center h-48">
+      <div class="w-10 h-10 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  } @else if (policy()) {
+
+    <!-- Header -->
+    <div class="flex items-start justify-between mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-800 font-mono">{{ policy()!.policyNumber }}</h1>
+        <div class="flex items-center gap-3 mt-2">
+          <span [class]="'px-3 py-1 rounded-full text-sm font-semibold ' + statusClass(policy()!.status)">{{ policy()!.status }}</span>
+          <span class="text-sm text-gray-500">{{ policy()!.disasterType }} · {{ policy()!.policyType }}</span>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        @if (policy()!.status === 'PENDING') {
+          <button (click)="showAdjustDialog.set(true)" class="flex items-center gap-2 px-4 py-2 bg-[#853953] text-white rounded-lg hover:bg-[#612D53] transition-colors text-sm font-medium">
+            <span class="material-icons text-sm">tune</span> Adjust Premium
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Detail Cards -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+      <!-- Policy Info -->
+      <div class="bg-white rounded-xl shadow-sm p-6">
+        <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Policy Information</h2>
+        <div class="space-y-3">
+          <div class="flex justify-between"><span class="text-sm text-gray-500">Disaster Type</span><span class="text-sm font-medium text-gray-800">{{ policy()!.disasterType }}</span></div>
+          <div class="flex justify-between"><span class="text-sm text-gray-500">Policy Type</span><span class="text-sm font-medium text-gray-800">{{ policy()!.policyType }}</span></div>
+          <div class="flex justify-between"><span class="text-sm text-gray-500">Property Address</span><span class="text-sm font-medium text-gray-800 max-w-48 text-right">{{ policy()!.propertyAddress }}</span></div>
+          <div class="flex justify-between"><span class="text-sm text-gray-500">Start Date</span><span class="text-sm font-medium text-gray-800">{{ policy()!.startDate }}</span></div>
+          <div class="flex justify-between"><span class="text-sm text-gray-500">End Date</span><span class="text-sm font-medium text-gray-800">{{ policy()!.endDate }}</span></div>
+          @if (policy()!.remarks) {
+            <div class="pt-2 border-t border-gray-100">
+              <p class="text-xs text-gray-500 mb-1">Remarks</p>
+              <p class="text-sm text-gray-700 bg-amber-50 p-2 rounded-lg">{{ policy()!.remarks }}</p>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Financial Info -->
+      <div class="bg-white rounded-xl shadow-sm p-6">
+        <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Financial Details</h2>
+        <div class="space-y-4">
+          <div class="bg-gray-50 rounded-xl p-4">
+            <p class="text-xs text-gray-500 mb-1">Property Value</p><p class="text-xl font-bold text-gray-800">{{ formatCurrency(policy()!.propertyValue) }}</p>
+          </div>
+          <div class="bg-emerald-50 rounded-xl p-4">
+            <p class="text-xs text-gray-500 mb-1">Sum Insured</p><p class="text-xl font-bold text-emerald-700">{{ formatCurrency(policy()!.sumInsured) }}</p>
+          </div>
+          <div class="bg-[#F3F4F4] rounded-xl p-4">
+            <p class="text-xs text-gray-500 mb-1">Premium Amount</p><p class="text-xl font-bold text-[#612D53]">{{ formatCurrency(policy()!.premiumAmount) }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customer / Zone / Risk Pool Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div class="bg-white rounded-xl shadow-sm p-5">
+        <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Customer</h2>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center text-white font-bold">{{ policy()!.userName.charAt(0) }}</div>
+          <div><div class="font-medium text-gray-800">{{ policy()!.userName }}</div><div class="text-xs text-gray-400">User ID: {{ policy()!.userId }}</div></div>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm p-5">
+        <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Disaster Zone</h2>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-[#612D53] rounded-xl flex items-center justify-center"><span class="material-icons text-white text-sm">place</span></div>
+          <div>
+            <div class="font-medium text-gray-800">{{ policy()!.disasterZoneName }}</div>
+            <div class="text-xs text-gray-400">{{ policy()!.disasterType }} · {{ policy()!.region }}</div>
+            @if (policy()!.disasterZoneRiskFactor != null) {
+              <div class="mt-1 flex items-center gap-1">
+                <span class="text-xs font-semibold px-1.5 py-0.5 rounded"
+                  [class]="policy()!.disasterZoneRiskFactor! >= 7 ? 'bg-red-100 text-red-700' : policy()!.disasterZoneRiskFactor! >= 5.5 ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'">
+                  RF {{ policy()!.disasterZoneRiskFactor!.toFixed(1) }}
+                </span>
+                <span class="text-xs text-gray-400">({{ (policy()!.disasterZoneRiskFactor! / 5).toFixed(2) }}× multiplier)</span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm p-5">
+        <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Risk Pool</h2>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center"><span class="material-icons text-amber-600 text-sm">account_balance</span></div>
+          <div><div class="font-medium text-gray-800">{{ policy()!.riskPoolDisasterType }} Pool</div><div class="text-xs text-gray-400">Risk coverage pool</div></div>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="text-center py-16 text-gray-400">
+      <span class="material-icons text-5xl block mb-2">policy</span> Policy not found
+    </div>
+  }
+</div>
+
+@if (showAdjustDialog()) {
+  <app-adjust-premium-dialog [policy]="policy()!" [agentId]="agentId" [policyId]="policy()!.id" (save)="onAdjustSaved($event)" (cancel)="showAdjustDialog.set(false)"></app-adjust-premium-dialog>
+}

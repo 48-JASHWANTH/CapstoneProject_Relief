@@ -1,0 +1,224 @@
+@if (loading()) {
+  <div class="flex items-center justify-center h-full py-24">
+    <div class="w-10 h-10 border-4 border-[#853953] border-t-transparent rounded-full animate-spin"></div>
+  </div>
+}
+
+@if (!loading() && dashboard()) {
+  <div class="p-6 space-y-6">
+
+    <!-- Welcome Banner -->
+    <div class="bg-[#853953] rounded-2xl px-6 py-5 flex items-center justify-between">
+      <div>
+        <h1 class="text-xl font-bold text-white">Welcome back, {{ dashboard()!.officerName }}</h1>
+        <p class="text-[#F3F4F4] text-sm mt-0.5">Claims Officer Dashboard &bull; Review and manage active claims</p>
+      </div>
+      <span class="material-icons text-5xl text-[#F3F4F4]/50">gavel</span>
+    </div>
+
+    <!-- Stats Row 1 -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Claims</span>
+          <div class="w-9 h-9 bg-gray-100 rounded-xl flex items-center justify-center">
+            <span class="material-icons text-gray-600 text-lg">folder_open</span>
+          </div>
+        </div>
+        <p class="text-3xl font-bold text-gray-800">{{ dashboard()!.totalClaims }}</p>
+      </div>
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Filed</span>
+          <div class="w-9 h-9 bg-[#F3F4F4] rounded-xl flex items-center justify-center">
+            <span class="material-icons text-[#853953] text-lg">assignment</span>
+          </div>
+        </div>
+        <p class="text-3xl font-bold text-[#612D53]">{{ dashboard()!.filedClaims }}</p>
+      </div>
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Under Review</span>
+          <div class="w-9 h-9 bg-[#F3F4F4] rounded-xl flex items-center justify-center">
+            <span class="material-icons text-[#853953] text-lg">manage_search</span>
+          </div>
+        </div>
+        <p class="text-3xl font-bold text-[#612D53]">{{ dashboard()!.underReview }}</p>
+      </div>
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Approved</span>
+          <div class="w-9 h-9 bg-green-100 rounded-xl flex items-center justify-center">
+            <span class="material-icons text-green-600 text-lg">check_circle</span>
+          </div>
+        </div>
+        <p class="text-3xl font-bold text-green-700">{{ dashboard()!.approvedClaims }}</p>
+      </div>
+    </div>
+
+    <!-- Stats Row 2 -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Rejected</span>
+          <div class="w-9 h-9 bg-red-100 rounded-xl flex items-center justify-center">
+            <span class="material-icons text-red-600 text-lg">cancel</span>
+          </div>
+        </div>
+        <p class="text-3xl font-bold text-red-700">{{ dashboard()!.rejectedClaims }}</p>
+      </div>
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Paid Out</span>
+          <div class="w-9 h-9 bg-[#F3F4F4] rounded-xl flex items-center justify-center">
+            <span class="material-icons text-[#853953] text-lg">payments</span>
+          </div>
+        </div>
+        <p class="text-3xl font-bold text-[#612D53]">{{ dashboard()!.paidClaims }}</p>
+      </div>
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Approved</span>
+          <div class="w-9 h-9 bg-[#F3F4F4] rounded-xl flex items-center justify-center">
+            <span class="material-icons text-[#853953] text-lg">attach_money</span>
+          </div>
+        </div>
+        <p class="text-2xl font-bold text-[#612D53]">{{ formatCurrency(dashboard()!.totalApprovedAmount) }}</p>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <!-- Bar Chart: Claims by Status -->
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+        <h3 class="text-sm font-semibold text-gray-700 mb-4">Claims by Status</h3>
+        <div class="space-y-3">
+          @for (item of dashboard()!.claimsByStatus; track item.status) {
+            <div class="flex items-center gap-3">
+              <span class="text-xs text-gray-500 w-32 truncate">{{ item.status.replace('_', ' ') }}</span>
+              <div class="flex-1 bg-gray-100 rounded-full h-3 overflow-hidden">
+                <div class="h-full rounded-full transition-all duration-500"
+                  [style.width.%]="(item.count / barMax) * 100"
+                  [style.background-color]="barColor(item.status)"></div>
+              </div>
+              <span class="text-xs font-bold text-gray-700 w-5 text-right">{{ item.count }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Donut Chart: Claims by Disaster -->
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+        <h3 class="text-sm font-semibold text-gray-700 mb-4">Claims by Disaster Type</h3>
+        <div class="flex items-center gap-6">
+          <svg viewBox="0 0 36 36" class="w-28 h-28 -rotate-90">
+            <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#f3f4f6" stroke-width="4"/>
+            @for (slice of pieSlices; track slice.disasterType) {
+              <circle cx="18" cy="18" r="15.9155" fill="none"
+                [attr.stroke]="slice.color" stroke-width="4"
+                [attr.stroke-dasharray]="slice.pct + ' ' + (100 - slice.pct)"
+                [attr.stroke-dashoffset]="100 - slice.offset"
+                class="transition-all duration-500"/>
+            }
+          </svg>
+          <div class="flex-1 space-y-2">
+            @for (slice of pieSlices; track slice.disasterType) {
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full shrink-0" [style.background-color]="slice.color"></div>
+                <span class="text-xs text-gray-600 flex-1">{{ slice.disasterType }}</span>
+                <span class="text-xs font-bold text-gray-700">{{ slice.count }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Risk Pool Snapshot -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
+        <span class="material-icons text-[#853953]">account_balance</span>
+        <h3 class="text-sm font-semibold text-gray-700">Risk Pool Snapshot</h3>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Disaster Type</th>
+              <th class="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Premium Collected</th>
+              <th class="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Claims Paid</th>
+              <th class="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Utilization</th>
+              <th class="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-50">
+            @for (pool of dashboard()!.riskPools; track pool.disasterType) {
+              <tr class="hover:bg-gray-50 transition-colors" [class.bg-red-50]="pool.critical">
+                <td class="px-6 py-3 font-medium text-gray-800 flex items-center gap-2">
+                  @if (pool.critical) {
+                    <span class="material-icons text-red-500 text-sm">warning</span>
+                  }
+                  {{ pool.disasterType }}
+                </td>
+                <td class="px-6 py-3 text-right text-gray-700">{{ formatCurrency(pool.premiumCollected) }}</td>
+                <td class="px-6 py-3 text-right text-gray-700">{{ formatCurrency(pool.claimsPaid) }}</td>
+                <td class="px-6 py-3">
+                  <div class="flex items-center gap-2">
+                    <div class="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
+                      <div class="h-full rounded-full"
+                        [class]="pool.critical ? 'bg-red-500' : 'bg-green-500'"
+                        [style.width.%]="(pool.claimsPaid / pool.premiumCollected) * 100"></div>
+                    </div>
+                    <span class="text-xs text-gray-500">{{ ((pool.claimsPaid / pool.premiumCollected) * 100).toFixed(0) }}%</span>
+                  </div>
+                </td>
+                <td class="px-6 py-3 text-center">
+                  <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full"
+                    [class]="pool.critical ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'">
+                    {{ pool.critical ? 'CRITICAL' : 'HEALTHY' }}
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Pending Attention -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="material-icons text-[#853953]">pending_actions</span>
+          <h3 class="text-sm font-semibold text-gray-700">Pending Attention</h3>
+        </div>
+        <span class="px-2.5 py-0.5 bg-[#F3F4F4] text-[#612D53] text-xs font-semibold rounded-full">{{ dashboard()!.pendingAttention.length }} claims</span>
+      </div>
+      <div class="divide-y divide-gray-50">
+        @for (p of dashboard()!.pendingAttention; track p.id) {
+          <div class="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 bg-[#F3F4F4] rounded-xl flex items-center justify-center">
+                <span class="material-icons text-[#853953] text-lg">description</span>
+              </div>
+              <div>
+                <p class="font-semibold text-gray-800 text-sm">{{ p.claimNumber }}</p>
+                <p class="text-xs text-gray-500">{{ p.policyNumber }} &bull; Filed {{ p.filedDate }}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <p class="text-sm font-bold text-gray-800">{{ formatCurrency(p.estimatedLoss) }}</p>
+              <span class="px-2 py-0.5 text-xs font-semibold rounded-full" [class]="statusClass(p.status)">{{ p.status }}</span>
+              <button (click)="review(p.id)"
+                class="px-3 py-1.5 bg-[#853953] hover:bg-[#612D53] text-white text-xs font-semibold rounded-lg transition-colors">
+                Review
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+  </div>
+}

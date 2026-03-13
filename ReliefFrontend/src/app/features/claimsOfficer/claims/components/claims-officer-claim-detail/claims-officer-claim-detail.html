@@ -1,0 +1,189 @@
+<div class="p-6 space-y-6 max-w-5xl mx-auto">
+
+  <!-- Top Bar -->
+  <div class="flex items-center gap-3">
+    <button (click)="back()"
+      class="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-500 hover:text-[#853953] hover:bg-[#F3F4F4] rounded-xl transition-colors">
+      <span class="material-icons text-lg">arrow_back</span>
+      Back to Claims
+    </button>
+  </div>
+
+  <!-- Error Banner -->
+  @if (requestState.error()) {
+    <div class="flex items-center gap-3 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
+      <span class="material-icons text-red-500 text-lg mt-0.5">error_outline</span>
+      <p class="text-sm text-red-700 flex-1">{{ requestState.error() }}</p>
+    </div>
+  }
+
+  <!-- Success Toast -->
+  @if (successMsg()) {
+    <div class="flex items-center gap-3 px-4 py-3 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm">
+      <span class="material-icons text-green-500 text-lg">check_circle</span>
+      {{ successMsg() }}
+    </div>
+  }
+
+  <!-- Loading -->
+  @if (requestState.loading()) {
+    <div class="flex items-center justify-center py-24">
+      <div class="w-10 h-10 border-4 border-[#853953] border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  }
+
+  @if (!requestState.loading() && !claim() && !requestState.error()) {
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 py-16 flex flex-col items-center text-gray-400">
+      <span class="material-icons text-5xl mb-3">error_outline</span>
+      <p class="text-sm">Claim not found.</p>
+    </div>
+  }
+
+  @if (!requestState.loading() && claim()) {
+    <!-- Header Card -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 px-6 py-5">
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 bg-[#F3F4F4] rounded-2xl flex items-center justify-center">
+            <span class="material-icons text-[#853953] text-2xl">description</span>
+          </div>
+          <div>
+            <h1 class="text-xl font-bold text-gray-800 font-mono">{{ claim()!.claimNumber }}</h1>
+            <p class="text-sm text-gray-500">{{ claim()!.disasterType }} &bull; Filed {{ claim()!.filedDate }}</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="px-3 py-1 text-sm font-semibold rounded-full" [class]="statusClass(claim()!.status)">
+            {{ claim()!.status.replace('_', ' ') }}
+          </span>
+          @if (canMarkUnderReview) {
+            <button (click)="markUnderReview()"
+              class="flex items-center gap-1.5 px-4 py-2 bg-[#853953] hover:bg-[#612D53] text-white text-sm font-semibold rounded-xl transition-colors">
+              <span class="material-icons text-sm">manage_search</span>
+              Mark Under Review
+            </button>
+          }
+          @if (canDecide) {
+            <button (click)="showDecisionDialog.set(true)"
+              class="flex items-center gap-1.5 px-4 py-2 bg-[#853953] hover:bg-[#612D53] text-white text-sm font-semibold rounded-xl transition-colors">
+              <span class="material-icons text-sm">gavel</span>
+              Decide on Claim
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Detail Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <!-- Left: Claim Info -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-50 flex items-center gap-2">
+          <span class="material-icons text-[#853953] text-lg">info</span>
+          <h3 class="text-sm font-semibold text-gray-700">Claim Information</h3>
+        </div>
+        <div class="px-5 py-4 space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Claim Number</p>
+              <p class="text-sm font-mono font-bold text-gray-800">{{ claim()!.claimNumber }}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Status</p>
+              <span class="px-2 py-0.5 text-xs font-semibold rounded-full" [class]="statusClass(claim()!.status)">
+                {{ claim()!.status.replace('_', ' ') }}
+              </span>
+            </div>
+            <div>
+              <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Filed Date</p>
+              <p class="text-sm text-gray-700">{{ claim()!.filedDate }}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Resolved Date</p>
+              <p class="text-sm text-gray-700">{{ claim()!.resolvedDate ?? '—' }}</p>
+            </div>
+          </div>
+
+          <div>
+            <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Description</p>
+            <p class="text-sm text-gray-700 leading-relaxed">{{ claim()!.description }}</p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Estimated Loss</p>
+              <p class="text-sm font-bold text-gray-800">₹{{ claim()!.estimatedLoss.toLocaleString() }}</p>
+            </div>
+            @if (claim()!.approvedAmount != null) {
+              <div>
+                <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Approved Amount</p>
+                <p class="text-sm font-bold text-green-700">₹{{ claim()!.approvedAmount!.toLocaleString() }}</p>
+              </div>
+            }
+          </div>
+
+          @if (claim()!.officerRemarks) {
+            <div class="bg-[#F3F4F4] border border-[#F3F4F4] rounded-xl px-4 py-3">
+              <p class="text-xs text-[#853953] font-semibold uppercase tracking-wide mb-1">Officer Remarks</p>
+              <p class="text-sm text-[#2C2C2C]">{{ claim()!.officerRemarks }}</p>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Right: Policy Info -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-50 flex items-center gap-2">
+          <span class="material-icons text-[#853953] text-lg">policy</span>
+          <h3 class="text-sm font-semibold text-gray-700">Policy & Claimant Details</h3>
+        </div>
+        <div class="px-5 py-4 space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Policy Number</p>
+              <p class="text-sm font-mono font-bold text-gray-800">{{ claim()!.policyNumber }}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Disaster Type</p>
+              <p class="text-sm font-semibold text-gray-700">{{ claim()!.disasterType }}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Sum Insured</p>
+              <p class="text-sm font-bold text-gray-800">₹{{ claim()!.sumInsured?.toLocaleString() ?? '—' }}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Premium / Year</p>
+              <p class="text-sm text-gray-700">₹{{ claim()!.premiumAmount?.toLocaleString() ?? '—' }}</p>
+            </div>
+          </div>
+
+          <div>
+            <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Property Address</p>
+            <p class="text-sm text-gray-700">{{ claim()!.propertyAddress }}</p>
+          </div>
+
+          <div class="flex items-center gap-3 bg-gray-50 rounded-xl px-4 py-3">
+            <div class="w-9 h-9 bg-[#F3F4F4] rounded-xl flex items-center justify-center">
+              <span class="material-icons text-[#853953] text-lg">person</span>
+            </div>
+            <div>
+              <p class="text-xs text-gray-400">Claimant</p>
+              <p class="text-sm font-semibold text-gray-800">{{ claim()!.userName }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+</div>
+
+<!-- Decision Dialog -->
+@if (showDecisionDialog() && claim()) {
+  <app-claim-decision-dialog
+    [claim]="claim()!"
+    (save)="onDecisionSaved($event)"
+    (cancel)="showDecisionDialog.set(false)">
+  </app-claim-decision-dialog>
+}

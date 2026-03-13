@@ -1,0 +1,49 @@
+<div class="flex h-screen bg-gray-50 overflow-hidden">
+  <!-- Sidebar -->
+  <aside [class]="sidebarOpen() ? 'w-64' : 'w-16'" class="bg-[#612D53] shrink-0 flex flex-col transition-all duration-300 ease-in-out">
+    <div class="flex items-center gap-3 px-4 py-5 border-b border-[#612D53]">
+      <div class="w-9 h-9 bg-[#853953] rounded-xl flex items-center justify-center shrink-0">
+        <span class="material-icons text-white text-lg">shield</span>
+      </div>
+      @if (sidebarOpen()) {
+        <div>
+          <div class="text-white font-bold text-sm">Relief</div>
+          <div class="text-[#F3F4F4] text-xs">Agent Portal</div>
+        </div>
+      }
+    </div>
+    <nav class="flex-1 py-4 space-y-1 px-2">
+      @for (item of navItems; track item.route) {
+        <a [routerLink]="item.route" routerLinkActive="bg-[#853953] text-white"
+          class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:bg-[#612D53] hover:text-white transition-colors">
+          <span class="material-icons text-xl shrink-0">{{ item.icon }}</span>
+          @if (sidebarOpen()) { <span class="text-sm font-medium truncate">{{ item.label }}</span> }
+        </a>
+      }
+    </nav>
+    <button (click)="toggleSidebar()" class="flex items-center justify-center py-3 border-t border-[#612D53] text-[#F3F4F4] hover:text-white transition-colors">
+      <span class="material-icons text-xl">{{ sidebarOpen() ? 'chevron_left' : 'chevron_right' }}</span>
+    </button>
+  </aside>
+
+  <!-- Main -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+    <header class="bg-white border-b border-gray-100 px-6 py-3 flex items-center justify-between shadow-sm">
+      <div class="flex items-center gap-3">
+        <span class="material-icons text-[#853953]">support_agent</span>
+        <span class="text-sm font-medium text-gray-600">Agent Portal</span>
+      </div>
+      <div class="flex items-center gap-3">
+
+        <span class="text-sm text-gray-600">{{ userName }}</span>
+        <button (click)="logout()" class="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+          <span class="material-icons text-sm">logout</span>
+          <span class="text-xs">Logout</span>
+        </button>
+      </div>
+    </header>
+    <main class="flex-1 overflow-y-auto">
+      <router-outlet />
+    </main>
+  </div>
+</div>
