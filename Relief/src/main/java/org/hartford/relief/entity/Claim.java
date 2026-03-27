@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +43,12 @@ public class Claim {
     @Column(name = "estimated_loss")
     private Double estimatedLoss;
 
+    @Column(name = "incident_date")
+    private LocalDate incidentDate;
+
+    @Column(name = "damage_type")
+    private String damageType;
+
     @Column(name = "approved_amount")
     private Double approvedAmount;
 
@@ -68,4 +75,10 @@ public class Claim {
     @JsonManagedReference("claim-payments")
     @OneToMany(mappedBy = "claim", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Payment> payments = new ArrayList<>();
+
+    // Claims (1) → (M) Documents — managed side
+    @Builder.Default
+    @JsonManagedReference("claim-documents")
+    @OneToMany(mappedBy = "claim", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ClaimDocument> documents = new ArrayList<>();
 }

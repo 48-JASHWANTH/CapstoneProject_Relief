@@ -45,6 +45,14 @@
         <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Claim Details</p>
         <div class="grid grid-cols-2 gap-3">
           <div>
+            <p class="text-xs text-gray-400">Incident Date</p>
+            <p class="text-sm text-gray-800">{{ claim()!.incidentDate }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-400">Damage Type</p>
+            <p class="text-sm font-semibold text-gray-800">{{ claim()!.damageType }}</p>
+          </div>
+          <div>
             <p class="text-xs text-gray-400">Estimated Loss</p>
             <p class="text-sm font-bold text-gray-800">₹{{ claim()!.estimatedLoss.toLocaleString() }}</p>
           </div>
@@ -59,8 +67,10 @@
             <p class="text-sm text-gray-700">{{ claim()!.filedDate }}</p>
           </div>
           <div>
-            <p class="text-xs text-gray-400">Resolved Date</p>
-            <p class="text-sm text-gray-700">{{ claim()!.resolvedDate ?? 'â€”' }}</p>
+            <p class="text-xs text-gray-400">
+              {{ claim()!.status === 'REJECTED' ? 'Rejected Date' : (claim()!.status === 'APPROVED' || claim()!.status === 'PAID' ? 'Approved Date' : 'Resolved Date') }}
+            </p>
+            <p class="text-sm text-gray-700">{{ claim()!.resolvedDate ?? '—' }}</p>
           </div>
         </div>
         <div>
@@ -86,19 +96,45 @@
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 px-5 py-4">
           <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Progress</p>
           <div class="space-y-2">
-            @for (step of ['FILED','SURVEY_ASSIGNED','UNDER_REVIEW','APPROVED','PAID']; track step) {
-              <div class="flex items-center gap-3">
-                <div class="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
-                  [class]="step === claim()!.status ? 'bg-[#853953]' : ((['FILED','SURVEY_ASSIGNED','UNDER_REVIEW','APPROVED','PAID'].indexOf(step) <= ['FILED','SURVEY_ASSIGNED','UNDER_REVIEW','APPROVED','PAID'].indexOf(claim()!.status)) ? 'bg-green-400' : 'bg-gray-200')">
-                  <span class="material-icons text-white text-xs">
-                    {{ step === claim()!.status ? 'check_circle' : 'check' }}
-                  </span>
+            @for (step of ['FILED', 'SURVEY_ASSIGNED', 'UNDER_REVIEW', claim()!.status === 'REJECTED' ? 'REJECTED' : 'APPROVED', claim()!.status === 'REJECTED' ? '' : 'PAID']; track step) {
+              @if (step !== '') {
+                <div class="flex items-center gap-3">
+                  <div class="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
+                    [class]="step === claim()!.status ? 'bg-[#853953]' : ((['FILED','SURVEY_ASSIGNED','UNDER_REVIEW','APPROVED','REJECTED','PAID'].indexOf(step) <= ['FILED','SURVEY_ASSIGNED','UNDER_REVIEW','APPROVED','REJECTED','PAID'].indexOf(claim()!.status)) ? (claim()!.status === 'REJECTED' && step === 'REJECTED' ? 'bg-red-500' : 'bg-green-400') : 'bg-gray-200')">
+                    <span class="material-icons text-white text-xs">
+                      {{ (claim()!.status === 'REJECTED' && step === 'REJECTED') ? 'cancel' : (step === claim()!.status ? 'check_circle' : 'check') }}
+                    </span>
+                  </div>
+                  <span class="text-xs" [class]="step === claim()!.status ? (claim()!.status === 'REJECTED' ? 'font-bold text-red-600' : 'font-bold text-[#853953]') : 'text-gray-500'">{{ step.replace('_', ' ') }}</span>
                 </div>
-                <span class="text-xs" [class]="step === claim()!.status ? 'font-bold text-[#853953]' : 'text-gray-500'">{{ step.replace('_', ' ') }}</span>
-              </div>
+              }
             }
           </div>
         </div>
+        
+        <!-- Uploaded Documents Attached -->
+        @if (claim()!.documents && claim()!.documents.length > 0) {
+          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 px-5 py-4">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Attached Documents</p>
+            <div class="grid grid-cols-1 gap-2">
+              @for (doc of claim()!.documents; track doc.id) {
+                <div class="flex items-center justify-between p-2 bg-gray-50 border border-gray-100 rounded-lg hover:border-[#853953] transition-colors">
+                  <div class="flex items-center gap-2">
+                    <span class="material-icons text-gray-400 text-sm">
+                      {{ doc.fileUrl.endsWith('.pdf') ? 'picture_as_pdf' : 'image' }}
+                    </span>
+                    <p class="text-sm font-medium text-gray-700">{{ doc.documentType.replace('_', ' ') }}</p>
+                  </div>
+                  <button (click)="viewDocument(doc.fileUrl)" title="View Securely"
+                    class="px-3 py-1 bg-white border border-gray-200 hover:border-[#853953] hover:text-[#853953] text-gray-600 text-xs font-semibold rounded-md shadow-sm transition-colors">
+                    View
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
       </div>
     </div>
 

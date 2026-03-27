@@ -33,4 +33,11 @@ public class PolicyResponse {
     private String disasterZoneName;
     private Double disasterZoneRiskFactor;
     private String riskPoolDisasterType;
+
+    private Integer yearBuilt;
+    private Integer roofAge;
+    private String constructionMaterial;
+    private String previousClaimsHistory;
+    private String safetyFeatures;
+    private java.util.List<PolicyDocumentResponse> documents;
 }

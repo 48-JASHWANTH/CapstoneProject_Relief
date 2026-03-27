@@ -1,0 +1,57 @@
+<div class="fixed bottom-6 right-6 z-50 flex flex-col items-end print:hidden">
+  <!-- Chat Window -->
+  @if (isOpen()) {
+    <div class="bg-white w-80 sm:w-96 rounded-2xl shadow-2xl border border-gray-200 mb-4 overflow-hidden flex flex-col h-[500px] max-h-[80vh] transition-all duration-300 animate-in slide-in-from-bottom-5">
+      <!-- Header -->
+      <div class="bg-[#853953] text-white p-4 flex justify-between items-center shadow-md">
+        <div class="flex items-center gap-2">
+          <span class="material-icons">support_agent</span>
+          <span class="font-semibold tracking-wide">Relief AI Assistant</span>
+        </div>
+        <button (click)="toggleChat()" class="hover:text-gray-200 transition-colors">
+          <span class="material-icons text-xl">close</span>
+        </button>
+      </div>
+
+      <!-- Messages Area -->
+      <div #chatContainer class="flex-1 p-4 overflow-y-auto bg-gray-50 flex flex-col gap-3 font-sans">
+        @for (msg of messages(); track $index) {
+          <div [class]="msg.sender === 'user' ? 'self-end bg-[#853953] text-white' : 'self-start bg-white border border-gray-200 text-gray-800'"
+               class="px-4 py-2.5 rounded-2xl max-w-[85%] text-[15px] shadow-sm whitespace-pre-wrap leading-relaxed">
+            {{ msg.text }}
+          </div>
+        }
+        @if (isLoading()) {
+          <div class="self-start bg-white border border-gray-200 text-gray-800 px-4 py-3 rounded-2xl max-w-[85%] shadow-sm flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></span>
+            <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></span>
+            <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></span>
+          </div>
+        }
+      </div>
+
+      <!-- Input Area -->
+      <div class="p-3 bg-white border-t border-gray-100 flex items-center gap-2">
+        <input type="text" 
+               [ngModel]="newMessage()" 
+               (ngModelChange)="newMessage.set($event)"
+               (keydown)="onKeyDown($event)"
+               placeholder="Type your message..." 
+               class="flex-1 bg-gray-100 rounded-full px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#853953]/50 border-transparent transition-all"
+               [disabled]="isLoading()"
+               autocomplete="off">
+        <button (click)="sendMessage()" 
+                [disabled]="isLoading() || !newMessage().trim()"
+                class="bg-[#853953] text-white p-2 rounded-full hover:bg-[#6c2e43] transition-colors disabled:opacity-50 flex items-center justify-center h-10 w-10 shrink-0 shadow-md">
+          <span class="material-icons text-sm ml-1">send</span>
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Toggle Button -->
+  <button (click)="toggleChat()" 
+          class="bg-[#853953] text-white p-4 rounded-full shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center relative">
+    <span class="material-icons text-3xl">{{ isOpen() ? 'close' : 'chat' }}</span>
+  </button>
+</div>

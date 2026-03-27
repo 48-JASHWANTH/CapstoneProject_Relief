@@ -30,4 +30,7 @@ public class ClaimResponse {
     private Double premiumAmount;
     private String userName;
     private String region;
+    private java.time.LocalDate incidentDate;
+    private String damageType;
+    private java.util.List<ClaimDocumentResponse> documents;
 }

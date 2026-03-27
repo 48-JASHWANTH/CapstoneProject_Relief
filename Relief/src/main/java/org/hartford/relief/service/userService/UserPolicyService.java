@@ -14,4 +14,8 @@ public interface UserPolicyService {
     PolicyResponse getMyPolicyById(Long userId, Long policyId);
 
     List<PolicyResponse> getMyPoliciesByStatus(Long userId, String status);
+
+    org.hartford.relief.dto.response.PolicyDocumentResponse uploadDocument(Long userId, Long policyId, String documentType, org.springframework.web.multipart.MultipartFile file) throws java.io.IOException;
+
+    PolicyResponse submitAdvancedDetails(Long userId, Long policyId, org.hartford.relief.dto.request.PolicyAdvancedDetailsRequest request);
 }

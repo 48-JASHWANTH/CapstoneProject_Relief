@@ -38,6 +38,16 @@ export class CustomerClaimDetail implements OnInit {
     return m[s] ?? 'bg-gray-100 text-gray-600';
   }
 
+  viewDocument(fileUrl: string) {
+    this.svc.downloadDocument(fileUrl).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        window.open(url, '_blank');
+      },
+      error: () => console.error('Failed to download document')
+    });
+  }
+
   back() { this.router.navigate(['/customer/claims']); }
 }
 

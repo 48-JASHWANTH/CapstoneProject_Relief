@@ -83,6 +83,26 @@ public class Policy {
     @Column(name = "end_date")
     private LocalDate endDate;
 
+    @Column(name = "year_built")
+    private Integer yearBuilt;
+
+    @Column(name = "roof_age")
+    private Integer roofAge;
+
+    @Column(name = "construction_material")
+    private String constructionMaterial;
+
+    @Column(name = "previous_claims_history", length = 1000)
+    private String previousClaimsHistory;
+
+    @Column(name = "safety_features", length = 500)
+    private String safetyFeatures;
+
+    @JsonManagedReference("policy-documents")
+    @OneToMany(mappedBy = "policy", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<PolicyDocument> documents = new ArrayList<>();
+
     // Policies (1) → (M) Claims — managed side
     @JsonManagedReference("policy-claims")
     @OneToMany(mappedBy = "policy", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

@@ -61,4 +61,14 @@ public class AgentPolicyController {
     public ResponseEntity<AgentDashboardResponse> getMyDashboard(@PathVariable Long agentId) {
         return ResponseEntity.ok(agentPolicyService.getMyDashboard(agentId));
     }
+
+    // PUT /api/agents/{agentId}/documents/{documentId}/review
+    @PutMapping("/documents/{documentId}/review")
+    public ResponseEntity<org.hartford.relief.dto.response.PolicyDocumentResponse> reviewDocument(
+            @PathVariable Long agentId,
+            @PathVariable Long documentId,
+            @RequestParam String status,
+            @RequestParam(required = false) String remarks) {
+        return ResponseEntity.ok(agentPolicyService.reviewDocument(agentId, documentId, status, remarks));
+    }
 }

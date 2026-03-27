@@ -6,9 +6,11 @@ import { PolicyResponse } from '../../../../../core/models/policy.model';
 import { AdjustPremiumDialog } from '../adjust-premium-dialog/adjust-premium-dialog';
 import { AuthService } from '../../../../../core/services/auth';
 
+import { FormsModule } from '@angular/forms';
+
 @Component({
   selector: 'app-agent-policy-detail',
-  imports: [CommonModule, AdjustPremiumDialog],
+  imports: [CommonModule, AdjustPremiumDialog, FormsModule],
   templateUrl: './agent-policy-detail.html',
   styleUrl: './agent-policy-detail.css',
 })
@@ -32,6 +34,39 @@ export class AgentPolicyDetail implements OnInit {
     this.svc.adjustPremium(this.agentId, this.policy()!.id, data).subscribe({
       next: (updated) => { this.policy.set(updated); this.showAdjustDialog.set(false); this.notify('Coverage and premium updated successfully'); },
       error: (err) => { this.notifyError(err?.error?.message || 'Failed to adjust premium. Only PENDING policies can be adjusted.'); }
+    });
+  }
+
+  reviewingDoc: number | null = null;
+  remarkInput: string = '';
+
+  viewDocument(fileUrl: string) {
+    this.svc.downloadDocument(fileUrl).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        window.open(url, '_blank');
+      },
+      error: () => this.notifyError('Failed to access document securely.')
+    });
+  }
+
+  reviewDocument(docId: number, status: string) {
+    this.reviewingDoc = docId;
+    this.svc.reviewDocument(this.agentId, docId, status, this.remarkInput).subscribe({
+      next: (updatedDoc) => {
+        const currentPolicy = this.policy();
+        if (currentPolicy && currentPolicy.documents) {
+          const docs = currentPolicy.documents.map(d => d.id === docId ? updatedDoc : d);
+          this.policy.set({ ...currentPolicy, documents: docs });
+        }
+        this.reviewingDoc = null;
+        this.remarkInput = '';
+        this.notify('Document status updated to ' + status);
+      },
+      error: () => {
+        this.reviewingDoc = null;
+        this.notifyError('Failed to review document');
+      }
     });
   }
 

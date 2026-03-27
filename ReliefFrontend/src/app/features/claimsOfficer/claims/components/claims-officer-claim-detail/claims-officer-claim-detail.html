@@ -96,6 +96,14 @@
               </span>
             </div>
             <div>
+              <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Damage Type</p>
+              <p class="text-sm text-gray-700 font-semibold">{{ claim()!.damageType }}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Incident Date</p>
+              <p class="text-sm text-gray-700">{{ claim()!.incidentDate }}</p>
+            </div>
+            <div>
               <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Filed Date</p>
               <p class="text-sm text-gray-700">{{ claim()!.filedDate }}</p>
             </div>
@@ -127,6 +135,29 @@
             <div class="bg-[#F3F4F4] border border-[#F3F4F4] rounded-xl px-4 py-3">
               <p class="text-xs text-[#853953] font-semibold uppercase tracking-wide mb-1">Officer Remarks</p>
               <p class="text-sm text-[#2C2C2C]">{{ claim()!.officerRemarks }}</p>
+            </div>
+          }
+
+          <!-- Uploaded Documents Attached -->
+          @if (claim()!.documents && claim()!.documents.length > 0) {
+            <div class="mt-4">
+              <p class="text-xs text-gray-400 uppercase tracking-wide mb-2">Attached Supporting Documents</p>
+              <div class="grid grid-cols-1 gap-2">
+                @for (doc of claim()!.documents; track doc.id) {
+                  <div class="flex items-center justify-between p-2 bg-gray-50 border border-gray-100 rounded-lg hover:border-[#853953] transition-colors">
+                    <div class="flex items-center gap-2">
+                      <span class="material-icons text-gray-400 text-sm">
+                        {{ doc.fileUrl.endsWith('.pdf') ? 'picture_as_pdf' : 'image' }}
+                      </span>
+                      <p class="text-sm font-medium text-gray-700">{{ doc.documentType.replace('_', ' ') }}</p>
+                    </div>
+                    <button (click)="viewDocument(doc.fileUrl)" title="View Securely"
+                      class="px-3 py-1 bg-white border border-gray-200 hover:border-[#853953] hover:text-[#853953] text-gray-600 text-xs font-semibold rounded-md shadow-sm transition-colors">
+                      View
+                    </button>
+                  </div>
+                }
+              </div>
             </div>
           }
         </div>

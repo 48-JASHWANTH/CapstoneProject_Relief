@@ -3,6 +3,7 @@ package org.hartford.relief.service.agentService;
 import org.hartford.relief.dto.request.AgentPremiumAdjustRequest;
 import org.hartford.relief.dto.response.AgentDashboardResponse;
 import org.hartford.relief.dto.response.PolicyResponse;
+import org.hartford.relief.dto.response.PolicyDocumentResponse;
 
 import java.util.List;
 
@@ -19,4 +20,6 @@ public interface AgentPolicyService {
     AgentDashboardResponse getMyDashboard(Long agentId);
 
     Double calculatePremium(Long agentId, Long policyId, Double sumInsured);
+
+    PolicyDocumentResponse reviewDocument(Long agentId, Long documentId, String status, String remarks);
 }

@@ -36,6 +36,16 @@ export class ClaimsOfficerClaimDetail implements OnInit {
     });
   }
 
+  viewDocument(fileUrl: string) {
+    this.svc.downloadDocument(fileUrl).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        window.open(url, '_blank');
+      },
+      error: () => this.requestState.error.set('Failed to access document securely.')
+    });
+  }
+
   onDecisionSaved(req: ClaimDecisionRequest) {
     this.svc.decideClaim(this.claim()!.id, req).subscribe(c => {
       this.claim.set(c);

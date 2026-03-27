@@ -16,6 +16,9 @@ import org.hartford.relief.repository.UserRepository;
 import org.hartford.relief.service.userService.UserPolicyService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.hartford.relief.dto.response.PolicyDocumentResponse;
+import org.hartford.relief.dto.request.PolicyAdvancedDetailsRequest;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -30,6 +33,8 @@ public class UserPolicyServiceImpl implements UserPolicyService {
     private final PolicyRepository policyRepository;
     private final DisasterZoneRepository disasterZoneRepository;
     private final RiskPoolRepository riskPoolRepository;
+    private final org.hartford.relief.service.FileStorageService fileStorageService;
+    private final org.hartford.relief.repository.PolicyDocumentRepository policyDocumentRepository;
 
     /**
      * Premium = sumInsured * baseRate * (riskFactor / 10.0)
@@ -143,6 +148,18 @@ public class UserPolicyServiceImpl implements UserPolicyService {
 
     private PolicyResponse mapToResponse(Policy policy) {
         DisasterZone zone = policy.getDisasterZone();
+        java.util.List<org.hartford.relief.dto.response.PolicyDocumentResponse> docs = policy.getDocuments().stream()
+                .map(d -> org.hartford.relief.dto.response.PolicyDocumentResponse.builder()
+                        .id(d.getId())
+                        .policyId(d.getPolicy().getId())
+                        .documentType(d.getDocumentType())
+                        .fileUrl(d.getFileUrl())
+                        .documentStatus(d.getDocumentStatus())
+                        .agentRemarks(d.getAgentRemarks())
+                        .uploadedAt(d.getUploadedAt())
+                        .build())
+                .collect(Collectors.toList());
+
         return PolicyResponse.builder()
                 .id(policy.getId())
                 .policyNumber(policy.getPolicyNumber())
@@ -166,6 +183,63 @@ public class UserPolicyServiceImpl implements UserPolicyService {
                 .disasterZoneName(zone != null ? zone.getZoneName() : null)
                 .disasterZoneRiskFactor(zone != null ? zone.getRiskFactor() : null)
                 .riskPoolDisasterType(policy.getRiskPool() != null ? policy.getRiskPool().getDisasterType() : null)
+                .yearBuilt(policy.getYearBuilt())
+                .roofAge(policy.getRoofAge())
+                .constructionMaterial(policy.getConstructionMaterial())
+                .previousClaimsHistory(policy.getPreviousClaimsHistory())
+                .safetyFeatures(policy.getSafetyFeatures())
+                .documents(docs)
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public org.hartford.relief.dto.response.PolicyDocumentResponse uploadDocument(Long userId, Long policyId, String documentType, org.springframework.web.multipart.MultipartFile file) throws java.io.IOException {
+        Policy policy = policyRepository.findById(policyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Policy", policyId));
+        if (!policy.getUser().getId().equals(userId))
+            throw new BadRequestException("Policy does not belong to this user.");
+
+        String fileName = fileStorageService.storeFile(file, policyId);
+
+        org.hartford.relief.entity.PolicyDocument document = org.hartford.relief.entity.PolicyDocument.builder()
+                .policy(policy)
+                .documentType(documentType)
+                .fileUrl(fileName)
+                .documentStatus("PENDING")
+                .uploadedAt(java.time.LocalDateTime.now())
+                .build();
+
+        document = policyDocumentRepository.save(document);
+        policy.getDocuments().add(document);
+
+        return org.hartford.relief.dto.response.PolicyDocumentResponse.builder()
+                .id(document.getId())
+                .policyId(policyId)
+                .documentType(document.getDocumentType())
+                .fileUrl(document.getFileUrl())
+                .documentStatus(document.getDocumentStatus())
+                .uploadedAt(document.getUploadedAt())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public PolicyResponse submitAdvancedDetails(Long userId, Long policyId, org.hartford.relief.dto.request.PolicyAdvancedDetailsRequest request) {
+        Policy policy = policyRepository.findById(policyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Policy", policyId));
+        if (!policy.getUser().getId().equals(userId))
+            throw new BadRequestException("Policy does not belong to this user.");
+
+        policy.setYearBuilt(request.getYearBuilt());
+        policy.setRoofAge(request.getRoofAge());
+        policy.setConstructionMaterial(request.getConstructionMaterial());
+        policy.setPreviousClaimsHistory(request.getPreviousClaimsHistory());
+        policy.setSafetyFeatures(request.getSafetyFeatures());
+        
+        // When customer submits advanced details, send it to the agent for review
+        policy.setStatus("UNDER_REVIEW");
+
+        return mapToResponse(policyRepository.save(policy));
     }
 }

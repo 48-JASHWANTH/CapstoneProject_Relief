@@ -43,4 +43,23 @@ public class UserPolicyController {
                                                                         @RequestParam String status) {
         return ResponseEntity.ok(userPolicyService.getMyPoliciesByStatus(userId, status));
     }
+
+    // POST /api/users/{userId}/policies/{policyId}/documents
+    @PostMapping("/{policyId}/documents")
+    public ResponseEntity<org.hartford.relief.dto.response.PolicyDocumentResponse> uploadDocument(
+            @PathVariable Long userId,
+            @PathVariable Long policyId,
+            @RequestParam String documentType,
+            @RequestParam("file") org.springframework.web.multipart.MultipartFile file) throws java.io.IOException {
+        return ResponseEntity.ok(userPolicyService.uploadDocument(userId, policyId, documentType, file));
+    }
+
+    // PUT /api/users/{userId}/policies/{policyId}/advanced-details
+    @PutMapping("/{policyId}/advanced-details")
+    public ResponseEntity<PolicyResponse> submitAdvancedDetails(
+            @PathVariable Long userId,
+            @PathVariable Long policyId,
+            @RequestBody org.hartford.relief.dto.request.PolicyAdvancedDetailsRequest request) {
+        return ResponseEntity.ok(userPolicyService.submitAdvancedDetails(userId, policyId, request));
+    }
 }

@@ -115,6 +115,67 @@
         </div>
       </div>
     </div>
+
+    <!-- Advanced Details & Documents -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4 mb-4">
+      
+      <!-- Advanced Details -->
+      <div class="bg-white rounded-xl shadow-sm p-6">
+        <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4 flex items-center gap-2">
+          <span class="material-icons text-teal-600">playlist_add_check</span> Final Details
+        </h2>
+        @if (policy()!.yearBuilt) {
+          <div class="space-y-3">
+            <div class="flex justify-between"><span class="text-sm text-gray-500">Year Built</span><span class="text-sm font-medium text-gray-800">{{ policy()!.yearBuilt }}</span></div>
+            <div class="flex justify-between"><span class="text-sm text-gray-500">Roof Age</span><span class="text-sm font-medium text-gray-800">{{ policy()!.roofAge }} yrs</span></div>
+            <div class="flex justify-between"><span class="text-sm text-gray-500">Material</span><span class="text-sm font-medium text-gray-800">{{ policy()!.constructionMaterial }}</span></div>
+            <div class="flex justify-between"><span class="text-sm text-gray-500">Safety Features</span><span class="text-sm font-medium text-gray-800">{{ policy()!.safetyFeatures }}</span></div>
+          </div>
+        } @else {
+          <p class="text-sm text-gray-400 italic">Customer has not submitted advanced details yet.</p>
+        }
+      </div>
+
+      <!-- Uploaded Documents -->
+      <div class="bg-white rounded-xl shadow-sm p-6 flex flex-col">
+        <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4 flex items-center gap-2">
+          <span class="material-icons text-[#853953]">folder</span> Policy Documents
+        </h2>
+        @if (policy()!.documents && policy()!.documents!.length > 0) {
+          <div class="overflow-y-auto pr-2 space-y-3">
+            @for (doc of policy()!.documents; track doc.id) {
+              <div class="border border-gray-100 rounded-xl p-4 relative">
+                <div class="flex items-start justify-between mb-3">
+                  <div>
+                    <button (click)="viewDocument(doc.fileUrl)" class="text-sm font-bold text-[#853953] bg-transparent border-none cursor-pointer p-0 hover:underline text-left">{{ doc.documentType }}</button>
+                    <p class="text-xs text-gray-400 mt-0.5">{{ doc.uploadedAt | date:'short' }}</p>
+                  </div>
+                  <span class="px-2 py-0.5 text-xs font-semibold rounded-md" 
+                    [ngClass]="{'bg-amber-100 text-amber-700': doc.documentStatus === 'PENDING', 'bg-green-100 text-green-700': doc.documentStatus === 'APPROVED', 'bg-red-100 text-red-700': doc.documentStatus === 'REJECTED'}">
+                    {{ doc.documentStatus }}
+                  </span>
+                </div>
+                @if (doc.agentRemarks) {
+                  <p class="text-xs text-red-600 bg-red-50 p-2 rounded-lg mb-3">Remarks: {{ doc.agentRemarks }}</p>
+                }
+                <!-- Review Controls -->
+                @if (doc.documentStatus === 'PENDING') {
+                  <div class="flex items-center gap-2 mt-2">
+                    <input type="text" [(ngModel)]="remarkInput" placeholder="Agent remarks (optional)" class="flex-1 text-xs px-2 py-1.5 border border-gray-200 rounded focus:outline-none focus:border-amber-400">
+                    <button (click)="reviewDocument(doc.id, 'APPROVED')" [disabled]="reviewingDoc !== null" class="p-1 px-2 bg-green-500 hover:bg-green-600 text-white rounded text-xs font-semibold" title="Approve">Approve</button>
+                    <button (click)="reviewDocument(doc.id, 'REJECTED')" [disabled]="reviewingDoc !== null" class="p-1 px-2 bg-red-500 hover:bg-red-600 text-white rounded text-xs font-semibold" title="Reject">Reject</button>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="text-sm text-gray-400 italic">No documents uploaded yet.</p>
+        }
+      </div>
+
+    </div>
+
   } @else {
     <div class="text-center py-16 text-gray-400">
       <span class="material-icons text-5xl block mb-2">policy</span> Policy not found

@@ -26,6 +26,30 @@ export interface PolicyResponse {
   disasterZoneRiskFactor: number | null;
   remarks: string | null;
   riskPoolDisasterType: string | null;
+  yearBuilt?: number;
+  roofAge?: number;
+  constructionMaterial?: string;
+  previousClaimsHistory?: string;
+  safetyFeatures?: string;
+  documents?: PolicyDocumentResponse[];
+}
+
+export interface PolicyDocumentResponse {
+  id: number;
+  policyId: number;
+  documentType: string;
+  fileUrl: string;
+  documentStatus: string;
+  agentRemarks: string | null;
+  uploadedAt: string;
+}
+
+export interface PolicyAdvancedDetailsRequest {
+  yearBuilt: number;
+  roofAge: number;
+  constructionMaterial: string;
+  previousClaimsHistory: string;
+  safetyFeatures: string;
 }
 
 export interface UserPolicyRequest {
@@ -64,6 +88,21 @@ export class CustomerPolicyService {
 
   submitPolicy(userId: number, req: UserPolicyRequest): Observable<PolicyResponse> {
     return this.http.post<PolicyResponse>(`${this.BASE}/api/users/${userId}/policies`, req);
+  }
+
+  uploadDocument(userId: number, policyId: number, documentType: string, file: File): Observable<PolicyDocumentResponse> {
+    const formData = new FormData();
+    formData.append('documentType', documentType);
+    formData.append('file', file);
+    return this.http.post<PolicyDocumentResponse>(`${this.BASE}/api/users/${userId}/policies/${policyId}/documents`, formData);
+  }
+
+  submitAdvancedDetails(userId: number, policyId: number, request: PolicyAdvancedDetailsRequest): Observable<PolicyResponse> {
+    return this.http.put<PolicyResponse>(`${this.BASE}/api/users/${userId}/policies/${policyId}/advanced-details`, request);
+  }
+
+  downloadDocument(fileUrl: string): Observable<Blob> {
+    return this.http.get(`${this.BASE}/api/documents/${fileUrl}`, { responseType: 'blob' });
   }
 }
 

@@ -32,6 +32,8 @@ public class UserClaimServiceImpl implements UserClaimService {
     private final UserRepository userRepository;
     private final PolicyRepository policyRepository;
     private final ClaimRepository claimRepository;
+    private final org.hartford.relief.repository.ClaimDocumentRepository claimDocumentRepository;
+    private final org.hartford.relief.service.FileStorageService fileStorageService;
 
     @Override
     @Transactional
@@ -91,6 +93,8 @@ public class UserClaimServiceImpl implements UserClaimService {
                 .riskPool(policy.getRiskPool())
                 .description(request.getDescription())
                 .estimatedLoss(request.getEstimatedLoss())
+                .incidentDate(request.getIncidentDate())
+                .damageType(request.getDamageType())
                 .status("FILED")
                 .filedDate(LocalDateTime.now())
                 .build();
@@ -106,6 +110,43 @@ public class UserClaimServiceImpl implements UserClaimService {
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public org.hartford.relief.dto.response.ClaimDocumentResponse uploadDocument(Long userId, Long claimId, String documentType, org.springframework.web.multipart.MultipartFile file) {
+        Claim claim = claimRepository.findById(claimId)
+                .orElseThrow(() -> new ResourceNotFoundException("Claim", claimId));
+                
+        if (!claim.getPolicy().getUser().getId().equals(userId)) {
+            throw new UnauthorizedAccessException("Claim", userId);
+        }
+
+        String fileName;
+        try {
+            fileName = fileStorageService.storeFile(file, claim.getPolicy().getId());
+        } catch (java.io.IOException e) {
+            throw new org.hartford.relief.exception.BadRequestException("Failed to store file");
+        }
+
+        org.hartford.relief.entity.ClaimDocument doc = org.hartford.relief.entity.ClaimDocument.builder()
+                .claim(claim)
+                .documentType(documentType)
+                .fileUrl(fileName)
+                .documentStatus("PENDING")
+                .uploadedAt(LocalDateTime.now())
+                .build();
+
+        doc = claimDocumentRepository.save(doc);
+
+        return org.hartford.relief.dto.response.ClaimDocumentResponse.builder()
+                .id(doc.getId())
+                .claimId(claim.getId())
+                .documentType(doc.getDocumentType())
+                .fileUrl(doc.getFileUrl())
+                .documentStatus(doc.getDocumentStatus())
+                .uploadedAt(doc.getUploadedAt())
+                .build();
     }
 
     @Override
@@ -131,11 +172,24 @@ public class UserClaimServiceImpl implements UserClaimService {
                 .premiumAmount(policy != null ? policy.getPremiumAmount() : null)
                 .description(claim.getDescription())
                 .estimatedLoss(claim.getEstimatedLoss())
+                .incidentDate(claim.getIncidentDate())
+                .damageType(claim.getDamageType())
                 .approvedAmount(claim.getApprovedAmount())
                 .status(claim.getStatus())
                 .officerRemarks(claim.getOfficerRemarks())
                 .filedDate(claim.getFiledDate())
                 .resolvedDate(claim.getResolvedDate())
+                .documents(claim.getDocuments() == null ? java.util.Collections.emptyList() : claim.getDocuments().stream()
+                        .map(d -> org.hartford.relief.dto.response.ClaimDocumentResponse.builder()
+                                .id(d.getId())
+                                .claimId(claim.getId())
+                                .documentType(d.getDocumentType())
+                                .fileUrl(d.getFileUrl())
+                                .documentStatus(d.getDocumentStatus())
+                                .officerRemarks(d.getOfficerRemarks())
+                                .uploadedAt(d.getUploadedAt())
+                                .build())
+                        .collect(Collectors.toList()))
                 .build();
     }
 }

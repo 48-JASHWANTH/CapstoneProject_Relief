@@ -31,6 +31,7 @@ public class AgentPolicyServiceImpl implements AgentPolicyService {
     private final AgentRepository agentRepository;
     private final PolicyRepository policyRepository;
     private final ClaimRepository claimRepository;
+    private final org.hartford.relief.repository.PolicyDocumentRepository policyDocumentRepository;
 
     // ──────────────────────────────────────────────
     // Helpers
@@ -213,6 +214,18 @@ public class AgentPolicyServiceImpl implements AgentPolicyService {
 
     private PolicyResponse mapPolicy(Policy policy) {
         DisasterZone zone = policy.getDisasterZone();
+        java.util.List<org.hartford.relief.dto.response.PolicyDocumentResponse> docs = policy.getDocuments().stream()
+                .map(d -> org.hartford.relief.dto.response.PolicyDocumentResponse.builder()
+                        .id(d.getId())
+                        .policyId(d.getPolicy().getId())
+                        .documentType(d.getDocumentType())
+                        .fileUrl(d.getFileUrl())
+                        .documentStatus(d.getDocumentStatus())
+                        .agentRemarks(d.getAgentRemarks())
+                        .uploadedAt(d.getUploadedAt())
+                        .build())
+                .collect(Collectors.toList());
+
         return PolicyResponse.builder()
                 .id(policy.getId())
                 .policyNumber(policy.getPolicyNumber())
@@ -236,6 +249,12 @@ public class AgentPolicyServiceImpl implements AgentPolicyService {
                 .disasterZoneName(zone != null ? zone.getZoneName() : null)
                 .disasterZoneRiskFactor(zone != null ? zone.getRiskFactor() : null)
                 .riskPoolDisasterType(policy.getRiskPool() != null ? policy.getRiskPool().getDisasterType() : null)
+                .yearBuilt(policy.getYearBuilt())
+                .roofAge(policy.getRoofAge())
+                .constructionMaterial(policy.getConstructionMaterial())
+                .previousClaimsHistory(policy.getPreviousClaimsHistory())
+                .safetyFeatures(policy.getSafetyFeatures())
+                .documents(docs)
                 .build();
     }
 
@@ -254,6 +273,33 @@ public class AgentPolicyServiceImpl implements AgentPolicyService {
                 .officerRemarks(claim.getOfficerRemarks())
                 .filedDate(claim.getFiledDate())
                 .resolvedDate(claim.getResolvedDate())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public org.hartford.relief.dto.response.PolicyDocumentResponse reviewDocument(Long agentId, Long documentId, String status, String remarks) {
+        Agent agent = getAgent(agentId);
+        org.hartford.relief.entity.PolicyDocument document = policyDocumentRepository.findById(documentId)
+                .orElseThrow(() -> new ResourceNotFoundException("PolicyDocument", documentId));
+        
+        if (document.getPolicy().getAgent() == null || !document.getPolicy().getAgent().getId().equals(agent.getId())) {
+            throw new UnauthorizedAccessException("This policy is not assigned to you.");
+        }
+
+        document.setDocumentStatus(status.toUpperCase());
+        document.setAgentRemarks(remarks);
+        
+        document = policyDocumentRepository.save(document);
+
+        return org.hartford.relief.dto.response.PolicyDocumentResponse.builder()
+                .id(document.getId())
+                .policyId(document.getPolicy().getId())
+                .documentType(document.getDocumentType())
+                .fileUrl(document.getFileUrl())
+                .documentStatus(document.getDocumentStatus())
+                .agentRemarks(document.getAgentRemarks())
+                .uploadedAt(document.getUploadedAt())
                 .build();
     }
 }

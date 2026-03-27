@@ -12,4 +12,5 @@ public interface UserClaimService {
     List<ClaimResponse> getMyClaims(Long userId);
 
     ClaimResponse getMyClaimById(Long userId, Long claimId);
+    org.hartford.relief.dto.response.ClaimDocumentResponse uploadDocument(Long userId, Long claimId, String documentType, org.springframework.web.multipart.MultipartFile file);
 }

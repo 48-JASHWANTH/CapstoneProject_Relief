@@ -36,4 +36,14 @@ public class UserClaimController {
                                                          @PathVariable Long claimId) {
         return ResponseEntity.ok(userClaimService.getMyClaimById(userId, claimId));
     }
+
+    // POST /api/users/{userId}/claims/{claimId}/documents
+    @PostMapping(value = "/{claimId}/documents", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<org.hartford.relief.dto.response.ClaimDocumentResponse> uploadDocument(
+            @PathVariable Long userId,
+            @PathVariable Long claimId,
+            @RequestParam("documentType") String documentType,
+            @RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userClaimService.uploadDocument(userId, claimId, documentType, file));
+    }
 }

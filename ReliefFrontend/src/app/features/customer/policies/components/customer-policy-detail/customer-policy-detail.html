@@ -9,9 +9,15 @@
 
   <!-- Toast -->
   @if (successMsg()) {
-    <div class="flex items-center gap-3 px-4 py-3 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm">
+    <div class="flex items-center gap-3 px-4 py-3 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm mb-4">
       <span class="material-icons text-green-500 text-lg">check_circle</span>
       {{ successMsg() }}
+    </div>
+  }
+  @if (errorMsg()) {
+    <div class="flex items-center gap-3 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm mb-4">
+      <span class="material-icons text-red-500 text-lg">error_outline</span>
+      {{ errorMsg() }}
     </div>
   }
 
@@ -23,9 +29,8 @@
   }
 
   @if (!loading() && !policy()) {
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 py-16 flex flex-col items-center text-gray-400">
-      <span class="material-icons text-5xl mb-3">error_outline</span>
-      <p class="text-sm">Policy not found.</p>
+    <div class="text-center py-16 text-gray-400">
+      <span class="material-icons text-5xl block mb-2">policy</span> Policy not found
     </div>
   }
 
@@ -158,6 +163,164 @@
         </div>
       }
     </div>
+
+    <!-- Awaiting Agent Assignment Banner -->
+    @if (policy()!.status === 'PENDING' && !policy()!.agentId) {
+      <div class="mt-8 border-t border-gray-100 pt-6">
+        <div class="bg-blue-50 border border-blue-100 rounded-2xl p-6 text-center">
+          <span class="material-icons text-blue-500 text-4xl mb-2">hourglass_empty</span>
+          <h3 class="text-blue-900 font-semibold mb-1">Awaiting Agent Assignment</h3>
+          <p class="text-sm text-blue-700">Your policy request has been received. Once an agent is assigned, you will be able to upload required documents here.</p>
+        </div>
+      </div>
+    }
+
+    <!-- Active Edit Section (Uploads & Advanced Details Form) -->
+    @if (policy()!.agentId && (policy()!.status === 'PENDING' || policy()!.status === 'UNDER_REVIEW')) {
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8 border-t border-gray-100 pt-6">
+        
+        <!-- Document Upload -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between">
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <span class="material-icons text-[#853953]">upload_file</span> Document Upload
+            </h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Document Type</label>
+                <select [(ngModel)]="documentType" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#853953] transition-all">
+                  <option value="ID_PROOF">ID Proof</option>
+                  <option value="PROPERTY_FRONT">Property Front</option>
+                  <option value="ROOF_CONDITION">Roof Condition</option>
+                  <option value="ELEVATION_CERTIFICATE">Elevation Certificate</option>
+                  <option value="OTHER">Other</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Select File</label>
+                <input type="file" (change)="onFileSelected($event)" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#F3F4F4] file:text-[#853953] hover:file:bg-[#e8e9e9]" />
+              </div>
+            </div>
+          </div>
+          <button (click)="uploadDocument()" [disabled]="!selectedFile || uploadingDoc()" class="w-full py-2.5 bg-[#853953] hover:bg-[#612D53] disabled:bg-gray-300 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 mt-4">
+            @if (uploadingDoc()) {
+              <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> Uploading...
+            } @else {
+              <span class="material-icons text-sm">cloud_upload</span> Upload
+            }
+          </button>
+        </div>
+
+        <!-- Advanced Details Form (Only if not submitted yet) -->
+        @if (!policy()!.yearBuilt) {
+          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <h3 class="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <span class="material-icons text-teal-600">playlist_add_check</span> Final Details
+            </h3>
+            <div class="space-y-3">
+              <div class="grid grid-cols-2 gap-3 mb-6">
+                <div>
+                  <label class="block text-xs text-gray-500 mb-1">Year Built</label>
+                  <input type="number" [(ngModel)]="yearBuilt" placeholder="e.g. 2010" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none text-sm" />
+                  @if (validationErrors.yearBuilt) { <p class="text-xs text-red-500 mt-1">{{validationErrors.yearBuilt}}</p> }
+                </div>
+                <div>
+                  <label class="block text-xs text-gray-500 mb-1">Roof Age (Years)</label>
+                  <input type="number" [(ngModel)]="roofAge" placeholder="e.g. 5" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none text-sm" />
+                  @if (validationErrors.roofAge) { <p class="text-xs text-red-500 mt-1">{{validationErrors.roofAge}}</p> }
+                </div>
+              </div>
+              <div class="flex flex-col gap-6">
+                <div>
+                  <label class="block text-xs text-gray-500 mb-2">Material (Select multiple)</label>
+                  <div class="flex flex-wrap gap-x-4 gap-y-2 bg-gray-50 p-3 rounded-xl border border-gray-200" [ngClass]="validationErrors.material ? 'border-red-300 bg-red-50' : ''">
+                    @for (mat of availableMaterials; track mat) {
+                      <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer hover:bg-gray-100 p-1 rounded transition-colors whitespace-nowrap">
+                        <input type="checkbox" 
+                               [checked]="constructionMaterial.includes(mat)"
+                               (change)="toggleMaterial(mat)"
+                               class="rounded text-teal-600 focus:ring-teal-500 w-4 h-4 border-gray-300" />
+                        {{ mat }}
+                      </label>
+                    }
+                  </div>
+                  @if (validationErrors.material) { <p class="text-xs text-red-500 mt-1">{{validationErrors.material}}</p> }
+                </div>
+                <div>
+                  <label class="block text-xs text-gray-500 mb-2">Safety Features (Select multiple)</label>
+                  <div class="flex flex-wrap gap-x-4 gap-y-2 bg-gray-50 p-3 rounded-xl border border-gray-200" [ngClass]="validationErrors.safety ? 'border-red-300 bg-red-50' : ''">
+                    @for (feat of availableSafetyFeatures; track feat) {
+                      <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer hover:bg-gray-100 p-1 rounded transition-colors whitespace-nowrap">
+                        <input type="checkbox" 
+                               [checked]="safetyFeatures.includes(feat)"
+                               (change)="toggleSafetyFeature(feat)"
+                               class="rounded text-teal-600 focus:ring-teal-500 w-4 h-4 border-gray-300" />
+                        <span>{{ feat }}</span>
+                      </label>
+                    }
+                  </div>
+                  @if (validationErrors.safety) { <p class="text-xs text-red-500 mt-1">{{validationErrors.safety}}</p> }
+                </div>
+              </div>
+              <button (click)="submitAdvancedDetails()" class="w-full py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl transition-colors mt-2">
+                Submit Final Details
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Read-only Submitted Details (Shows if yearBuilt exists) -->
+    @if (policy()!.yearBuilt) {
+      <div class="mt-8 border-t border-gray-100 pt-6">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <h3 class="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <span class="material-icons text-teal-600">playlist_add_check</span> Final Details Submitted
+          </h3>
+          <div class="space-y-3">
+            <div class="flex justify-between"><span class="text-sm text-gray-500">Year Built</span><span class="text-sm font-medium text-gray-800">{{ policy()!.yearBuilt }}</span></div>
+            <div class="flex justify-between"><span class="text-sm text-gray-500">Roof Age</span><span class="text-sm font-medium text-gray-800">{{ policy()!.roofAge }} yrs</span></div>
+            <div class="flex justify-between"><span class="text-sm text-gray-500">Material</span><span class="text-sm font-medium text-gray-800">{{ policy()!.constructionMaterial }}</span></div>
+            <div class="flex justify-between"><span class="text-sm text-gray-500">Safety Features</span><span class="text-sm font-medium text-gray-800">{{ policy()!.safetyFeatures }}</span></div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Uploaded Documents List -->
+    @if (policy()!.documents && policy()!.documents!.length > 0) {
+      <div class="mt-6 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-50">
+          <h3 class="font-semibold text-gray-800">Your Uploaded Documents</h3>
+        </div>
+        <div class="divide-y divide-gray-50">
+          @for (doc of policy()!.documents; track doc.id) {
+            <div class="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-[#F3F4F4] rounded-lg flex items-center justify-center text-[#853953]">
+                  <span class="material-icons">description</span>
+                </div>
+                <div>
+                  <p class="text-sm font-semibold text-gray-800">{{ doc.documentType }}</p>
+                  <p class="text-xs text-gray-400">Uploaded: {{ doc.uploadedAt | date:'short' }}</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <button (click)="viewDocument(doc.fileUrl)" class="text-sm text-teal-600 hover:text-teal-800 font-medium bg-transparent border-none cursor-pointer p-0 underline">View File</button>
+                <span class="px-2.5 py-1 text-xs font-semibold rounded-full" 
+                  [ngClass]="{'bg-amber-100 text-amber-700': doc.documentStatus === 'PENDING', 'bg-green-100 text-green-700': doc.documentStatus === 'APPROVED', 'bg-red-100 text-red-700': doc.documentStatus === 'REJECTED'}">
+                  {{ doc.documentStatus }}
+                </span>
+                @if (doc.agentRemarks) {
+                  <span class="text-xs text-red-500 max-w-[200px] truncate" title="{{ doc.agentRemarks }}">Note: {{ doc.agentRemarks }}</span>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
 
   }
 

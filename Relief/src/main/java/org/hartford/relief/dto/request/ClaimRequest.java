@@ -12,4 +12,6 @@ public class ClaimRequest {
     private Long policyId;
     private String description;
     private Double estimatedLoss;
+    private java.time.LocalDate incidentDate;
+    private String damageType;
 }

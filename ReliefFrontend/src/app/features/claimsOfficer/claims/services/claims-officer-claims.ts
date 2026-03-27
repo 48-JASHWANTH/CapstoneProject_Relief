@@ -4,6 +4,16 @@ import { Observable } from 'rxjs';
 import { AuthService } from '../../../../core/services/auth';
 import { API_BASE_URL } from '../../../../core/constants/api.constants';
 
+export interface ClaimDocumentResponse {
+  id: number;
+  claimId: number;
+  documentType: string;
+  fileUrl: string;
+  documentStatus: string;
+  officerRemarks: string | null;
+  uploadedAt: string;
+}
+
 export interface ClaimResponse {
   id: number;
   claimNumber: string;
@@ -12,6 +22,8 @@ export interface ClaimResponse {
   disasterType: string;
   description: string;
   estimatedLoss: number;
+  incidentDate: string;
+  damageType: string;
   approvedAmount: number | null;
   status: string;
   filedDate: string;
@@ -21,6 +33,7 @@ export interface ClaimResponse {
   sumInsured: number | null;
   premiumAmount: number | null;
   userName: string | null;
+  documents: ClaimDocumentResponse[];
 }
 
 export interface ClaimDecisionRequest {
@@ -71,5 +84,9 @@ export class ClaimsOfficerClaimsService {
   getHighValue(threshold: number): Observable<ClaimResponse[]> {
     const params = new HttpParams().set('threshold', String(threshold));
     return this.http.get<ClaimResponse[]>(`${this.base}/high-value`, { params });
+  }
+
+  downloadDocument(fileUrl: string): Observable<Blob> {
+    return this.http.get(`${API_BASE_URL}/api/documents/${fileUrl}`, { responseType: 'blob' });
   }
 }

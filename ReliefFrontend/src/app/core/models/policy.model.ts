@@ -21,6 +21,30 @@ export interface PolicyResponse {
   disasterZoneName: string | null;
   disasterZoneRiskFactor: number | null;
   riskPoolDisasterType: string | null;
+  yearBuilt?: number;
+  roofAge?: number;
+  constructionMaterial?: string;
+  previousClaimsHistory?: string;
+  safetyFeatures?: string;
+  documents?: PolicyDocumentResponse[];
+}
+
+export interface PolicyDocumentResponse {
+  id: number;
+  policyId: number;
+  documentType: string;
+  fileUrl: string;
+  documentStatus: string;
+  agentRemarks: string | null;
+  uploadedAt: string;
+}
+
+export interface PolicyAdvancedDetailsRequest {
+  yearBuilt: number;
+  roofAge: number;
+  constructionMaterial: string;
+  previousClaimsHistory: string;
+  safetyFeatures: string;
 }
 
 export interface PolicyApprovalRequest {
