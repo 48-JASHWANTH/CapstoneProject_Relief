@@ -27,9 +27,17 @@ export class CustomerNewClaim implements OnInit {
 
   step = signal<number>(1);
   createdClaim = signal<CustomerClaimResponse | null>(null);
-  selectedFile: File | null = null;
-  documentType: string = 'DAMAGE_PHOTO';
-  uploadingDoc = signal(false);
+
+  // New specific upload slots
+  photo1File: File | null = null;
+  photo2File: File | null = null;
+  docFile: File | null = null;
+  
+  uploadStates = signal({
+    photo1: 'pending' as 'pending' | 'uploading' | 'done' | 'error',
+    photo2: 'pending' as 'pending' | 'uploading' | 'done' | 'error',
+    doc: 'pending' as 'pending' | 'uploading' | 'done' | 'error'
+  });
 
   get selectedPolicy(): PolicyResponse | undefined {
     const policyId = this.form?.get('policyId')?.value;
@@ -86,43 +94,66 @@ export class CustomerNewClaim implements OnInit {
     });
   }
 
-  onFileSelected(event: any) {
+  onFileSelected(event: any, slot: 'photo1' | 'photo2' | 'doc') {
     const file = event.target.files[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        this.requestState.error.set('File size cannot exceed 5MB. Please choose a smaller file.');
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      this.requestState.error.set('File size cannot exceed 5MB.');
+      event.target.value = '';
+      return;
+    }
+
+    const isImage = file.type === 'image/jpeg' || file.type === 'image/png';
+    const isPdf = file.type === 'application/pdf';
+
+    if (slot === 'photo1' || slot === 'photo2') {
+      if (!isImage) {
+        this.requestState.error.set('Photos must be JPG or PNG format.');
         event.target.value = '';
-        this.selectedFile = null;
         return;
       }
-      const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
-      if (!allowedTypes.includes(file.type)) {
-        this.requestState.error.set('Only JPG, PNG, and PDF files are allowed.');
+      if (slot === 'photo1') this.photo1File = file;
+      if (slot === 'photo2') this.photo2File = file;
+    } else if (slot === 'doc') {
+      if (!isPdf) {
+        this.requestState.error.set('Supporting Document must be a PDF file.');
         event.target.value = '';
-        this.selectedFile = null;
         return;
       }
-      this.selectedFile = file;
+      this.docFile = file;
     }
   }
 
-  uploadDocument() {
-    if (!this.selectedFile || !this.createdClaim()) return;
-    this.uploadingDoc.set(true);
+  uploadSpecificFile(slot: 'photo1' | 'photo2' | 'doc') {
+    let fileToUpload: File | null = null;
+    let explicitDocType = 'DAMAGE_PHOTO';
+    
+    if (slot === 'photo1') fileToUpload = this.photo1File;
+    if (slot === 'photo2') fileToUpload = this.photo2File;
+    if (slot === 'doc') {
+      fileToUpload = this.docFile;
+      explicitDocType = 'REPAIR_ESTIMATE';
+    }
+
+    if (!fileToUpload || !this.createdClaim()) return;
+
+    this.uploadStates.update(s => ({ ...s, [slot]: 'uploading' }));
     this.requestState.error.set('');
-    this.claimsSvc.uploadDocument(this.userId, this.createdClaim()!.id, this.documentType, this.selectedFile).subscribe({
+    
+    this.claimsSvc.uploadDocument(this.userId, this.createdClaim()!.id, explicitDocType, fileToUpload).subscribe({
       next: (doc) => {
         const currentClaim = this.createdClaim();
         if (currentClaim) {
-          const docs = currentClaim.documents || [];
-          this.createdClaim.set({ ...currentClaim, documents: [...docs, doc] });
+           this.createdClaim.set({ ...currentClaim, documents: [...(currentClaim.documents || []), doc] });
         }
-        this.selectedFile = null;
-        this.documentType = 'DAMAGE_PHOTO';
-        this.uploadingDoc.set(false);
+        this.uploadStates.update(s => ({ ...s, [slot]: 'done' }));
+        if (slot === 'photo1') this.photo1File = null;
+        if (slot === 'photo2') this.photo2File = null;
+        if (slot === 'doc') this.docFile = null;
       },
       error: (err) => {
-        this.uploadingDoc.set(false);
+        this.uploadStates.update(s => ({ ...s, [slot]: 'error' }));
         this.requestState.error.set(err?.error?.message || 'Failed to upload document.');
       }
     });
@@ -138,7 +169,12 @@ export class CustomerNewClaim implements OnInit {
     });
   }
 
+  get canFinish(): boolean {
+    return this.uploadStates().photo1 === 'done' && this.uploadStates().doc === 'done';
+  }
+
   finish() {
+    if (!this.canFinish) return;
     localStorage.setItem('relief_claim_success', `Claim ${this.createdClaim()?.claimNumber} filed successfully and is now pending review.`);
     this.router.navigate(['/customer/claims']);
   }

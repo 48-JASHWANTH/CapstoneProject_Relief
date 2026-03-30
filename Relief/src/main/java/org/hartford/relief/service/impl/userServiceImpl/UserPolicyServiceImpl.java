@@ -177,6 +177,7 @@ public class UserPolicyServiceImpl implements UserPolicyService {
                 .remarks(policy.getRemarks())
                 .startDate(policy.getStartDate())
                 .endDate(policy.getEndDate())
+                .nextPremiumDueDate(policy.getNextPremiumDueDate())
                 .region(policy.getRegion())
                 .tenure(policy.getTenure())
                 .disasterZoneId(zone != null ? zone.getId() : null)
@@ -184,7 +185,6 @@ public class UserPolicyServiceImpl implements UserPolicyService {
                 .disasterZoneRiskFactor(zone != null ? zone.getRiskFactor() : null)
                 .riskPoolDisasterType(policy.getRiskPool() != null ? policy.getRiskPool().getDisasterType() : null)
                 .yearBuilt(policy.getYearBuilt())
-                .roofAge(policy.getRoofAge())
                 .constructionMaterial(policy.getConstructionMaterial())
                 .previousClaimsHistory(policy.getPreviousClaimsHistory())
                 .safetyFeatures(policy.getSafetyFeatures())
@@ -232,7 +232,6 @@ public class UserPolicyServiceImpl implements UserPolicyService {
             throw new BadRequestException("Policy does not belong to this user.");
 
         policy.setYearBuilt(request.getYearBuilt());
-        policy.setRoofAge(request.getRoofAge());
         policy.setConstructionMaterial(request.getConstructionMaterial());
         policy.setPreviousClaimsHistory(request.getPreviousClaimsHistory());
         policy.setSafetyFeatures(request.getSafetyFeatures());

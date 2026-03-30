@@ -65,8 +65,30 @@ To run this project locally, ensure you have the following installed:
 
 ## Setup and Installation
 
+### Environment Variables
+Before running the backend, you must set the following environment variables on your system to provide the necessary API keys and credential paths:
+
+- `GROQ_API_KEY`: Your Groq API key for the AI context feature.
+- `GCP_CREDENTIALS_PATH`: The absolute path to your Google Cloud Service Account JSON key file.
+- `JWT_SECRET`: A secure string used for signing JWT tokens (optional, defaults to a development key if not set).
+
+**On Windows (Command Prompt):**
+```cmd
+set GROQ_API_KEY=your_key_here
+set GCP_CREDENTIALS_PATH=C:/path/to/your/gcp-key.json
+set JWT_SECRET=your_secure_secret
+```
+
+**On Linux/Mac (Bash/Zsh):**
+```bash
+export GROQ_API_KEY="your_key_here"
+export GCP_CREDENTIALS_PATH="/path/to/your/gcp-key.json"
+export JWT_SECRET="your_secure_secret"
+```
+
 ### 1. Running the Backend
 1. Navigate to the backend directory:
+
    ```bash
    cd Relief
    ```

@@ -3,6 +3,7 @@ package org.hartford.relief.service.impl.userServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.hartford.relief.dto.request.ClaimRequest;
 import org.hartford.relief.dto.response.ClaimResponse;
+import org.hartford.relief.dto.response.VisionAnalysisResult;
 import org.hartford.relief.entity.Claim;
 import org.hartford.relief.entity.Policy;
 import org.hartford.relief.exception.BadRequestException;
@@ -15,6 +16,7 @@ import org.hartford.relief.exception.UnauthorizedAccessException;
 import org.hartford.relief.repository.ClaimRepository;
 import org.hartford.relief.repository.PolicyRepository;
 import org.hartford.relief.repository.UserRepository;
+import org.hartford.relief.service.VisionService;
 import org.hartford.relief.service.userService.UserClaimService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +36,8 @@ public class UserClaimServiceImpl implements UserClaimService {
     private final ClaimRepository claimRepository;
     private final org.hartford.relief.repository.ClaimDocumentRepository claimDocumentRepository;
     private final org.hartford.relief.service.FileStorageService fileStorageService;
+    private final VisionService visionService;
+    private final org.hartford.relief.ai.DocumentAiService documentAiService;
 
     @Override
     @Transactional
@@ -103,6 +107,7 @@ public class UserClaimServiceImpl implements UserClaimService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ClaimResponse> getMyClaims(Long userId) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", userId));
@@ -137,6 +142,28 @@ public class UserClaimServiceImpl implements UserClaimService {
                 .uploadedAt(LocalDateTime.now())
                 .build();
 
+        // --- Vertex AI Vision: auto-analyse DAMAGE_PHOTO uploads ---
+        if ("DAMAGE_PHOTO".equalsIgnoreCase(documentType)) {
+            try {
+                byte[] bytes = file.getBytes();
+                VisionAnalysisResult ai = visionService.analyze(bytes);
+                doc.setAiDamageType(ai.getDamageType());
+                doc.setAiSeverity(ai.getSeverity());
+                doc.setAiConfidence(ai.getConfidence());
+                doc.setAiSuggestedLoss(ai.getSuggestedLoss());
+            } catch (Exception e) {
+                // Vision failure must not block the upload
+                doc.setAiDamageType("Unknown");
+                doc.setAiSeverity("Minor");
+                doc.setAiConfidence(0.0);
+                doc.setAiSuggestedLoss("N/A");
+            }
+        } else if ("REPAIR_ESTIMATE".equalsIgnoreCase(documentType) || "POLICE_REPORT".equalsIgnoreCase(documentType) || "OTHER".equalsIgnoreCase(documentType)) {
+            // Read document with PDFBox and pass to Groq ChatClient
+            String summary = documentAiService.analyzeDocument(file);
+            doc.setAiSummary(summary);
+        }
+
         doc = claimDocumentRepository.save(doc);
 
         return org.hartford.relief.dto.response.ClaimDocumentResponse.builder()
@@ -146,10 +173,16 @@ public class UserClaimServiceImpl implements UserClaimService {
                 .fileUrl(doc.getFileUrl())
                 .documentStatus(doc.getDocumentStatus())
                 .uploadedAt(doc.getUploadedAt())
+                .aiDamageType(doc.getAiDamageType())
+                .aiSeverity(doc.getAiSeverity())
+                .aiConfidence(doc.getAiConfidence())
+                .aiSuggestedLoss(doc.getAiSuggestedLoss())
+                .aiSummary(doc.getAiSummary())
                 .build();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ClaimResponse getMyClaimById(Long userId, Long claimId) {
         Claim claim = claimRepository.findById(claimId)
                 .orElseThrow(() -> new ResourceNotFoundException("Claim", claimId));
@@ -188,6 +221,11 @@ public class UserClaimServiceImpl implements UserClaimService {
                                 .documentStatus(d.getDocumentStatus())
                                 .officerRemarks(d.getOfficerRemarks())
                                 .uploadedAt(d.getUploadedAt())
+                                .aiDamageType(d.getAiDamageType())
+                                .aiSeverity(d.getAiSeverity())
+                                .aiConfidence(d.getAiConfidence())
+                                .aiSuggestedLoss(d.getAiSuggestedLoss())
+                                .aiSummary(d.getAiSummary())
                                 .build())
                         .collect(Collectors.toList()))
                 .build();

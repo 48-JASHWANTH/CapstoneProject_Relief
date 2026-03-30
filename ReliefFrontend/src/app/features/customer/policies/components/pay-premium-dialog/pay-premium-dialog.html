@@ -7,11 +7,11 @@
       </div>
       <div class="px-6 py-5 space-y-4">
         <div class="bg-amber-50 border border-amber-200 rounded-xl px-4 py-4 text-center">
-          <p class="text-xs text-amber-600 mb-1">Premium Amount</p>
-          <p class="text-3xl font-bold text-amber-700">₹{{ policy.premiumAmount.toLocaleString() }}</p>
+          <p class="text-xs text-amber-600 mb-1">Monthly Premium Amount</p>
+          <p class="text-3xl font-bold text-amber-700">₹{{ (policy.premiumAmount / 12).toLocaleString(undefined, { maximumFractionDigits: 2 }) }}</p>
         </div>
         <p class="text-sm text-gray-600 text-center">
-          Pay <strong>₹{{ policy.premiumAmount.toLocaleString() }}</strong> for policy
+          Pay <strong>₹{{ (policy.premiumAmount / 12).toLocaleString(undefined, { maximumFractionDigits: 2 }) }}</strong> for policy
           <strong>{{ policy.policyNumber }}</strong>?
         </p>
         <p class="text-xs text-gray-400 text-center">After payment, your policy status will change to <strong>ACTIVE</strong>.</p>

@@ -45,25 +45,24 @@ public class UserPaymentServiceImpl implements UserPaymentService {
             throw new UnauthorizedAccessException("Policy", userId);
         }
 
-        // Only APPROVED policies can receive premium payment
-        if (!"APPROVED".equalsIgnoreCase(policy.getStatus())) {
+        // Only APPROVED or ACTIVE policies can receive premium payment
+        if (!"APPROVED".equalsIgnoreCase(policy.getStatus()) && !"ACTIVE".equalsIgnoreCase(policy.getStatus())) {
             throw new InvalidStatusTransitionException(
-                    "Premium can only be paid for APPROVED policies. Current status: " + policy.getStatus());
+                    "Premium can only be paid for APPROVED or ACTIVE policies. Current status: " + policy.getStatus());
         }
 
-        // Check if premium was already paid (prevent duplicate)
-        boolean alreadyPaid = !paymentRepository
-                .findByPolicyIdAndPaymentType(policy.getId(), "PREMIUM")
-                .isEmpty();
-        if (alreadyPaid) {
-            throw new PremiumAlreadyPaidException(policy.getId());
+        // Check if payment is actually due
+        if (policy.getNextPremiumDueDate() != null && policy.getNextPremiumDueDate().isAfter(java.time.LocalDate.now())) {
+            throw new InvalidStatusTransitionException("Next premium payment is not due yet. Due on: " + policy.getNextPremiumDueDate());
         }
+
+        double monthlyPremium = Math.round((policy.getPremiumAmount() / 12.0) * 100.0) / 100.0;
 
         // Record the premium payment
         Payment payment = Payment.builder()
                 .policy(policy)
                 .paymentType("PREMIUM")
-                .amount(policy.getPremiumAmount())
+                .amount(monthlyPremium)
                 .paymentStatus("COMPLETED")
                 .paymentDate(LocalDateTime.now())
                 .riskPool(policy.getRiskPool())
@@ -71,15 +70,18 @@ public class UserPaymentServiceImpl implements UserPaymentService {
 
         Payment saved = paymentRepository.save(payment);
 
-        // Activate the policy after premium payment
-        policy.setStatus("ACTIVE");
+        // Activate the policy and set next due date to exactly 30 days from now
+        if ("APPROVED".equalsIgnoreCase(policy.getStatus())) {
+            policy.setStatus("ACTIVE");
+        }
+        policy.setNextPremiumDueDate(java.time.LocalDate.now().plusDays(30));
         policyRepository.save(policy);
 
         // Update the RiskPool: add premium to totalPremiumCollected
         if (policy.getRiskPool() != null) {
             RiskPool pool = policy.getRiskPool();
             double current = pool.getTotalPremiumCollected() != null ? pool.getTotalPremiumCollected() : 0.0;
-            pool.setTotalPremiumCollected(current + policy.getPremiumAmount());
+            pool.setTotalPremiumCollected(current + monthlyPremium);
             riskPoolRepository.save(pool);
         }
 

@@ -13,12 +13,23 @@ import org.springframework.web.bind.annotation.*;
 
 
 
+import org.hartford.relief.service.agentService.AiUnderwritingService;
+import org.hartford.relief.dto.response.AiPremiumDecision;
+
 @RestController
 @RequestMapping("/api/agents/{agentId}")
 @RequiredArgsConstructor
 public class AgentPolicyController {
 
     private final AgentPolicyService agentPolicyService;
+    private final AiUnderwritingService aiUnderwritingService;
+
+    // GET /api/agents/{agentId}/policies/{policyId}/ai-premium
+    @GetMapping("/policies/{policyId}/ai-premium")
+    public ResponseEntity<AiPremiumDecision> getAiPremium(@PathVariable Long agentId,
+                                                         @PathVariable Long policyId) {
+        return ResponseEntity.ok(aiUnderwritingService.calculatePremiumWithAi(agentId, policyId));
+    }
 
     // GET /api/agents/{agentId}/policies
     @GetMapping("/policies")

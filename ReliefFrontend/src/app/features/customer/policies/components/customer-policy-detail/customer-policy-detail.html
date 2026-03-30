@@ -56,8 +56,22 @@
             <button (click)="showPayDialog.set(true)"
               class="flex items-center gap-1.5 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold rounded-xl transition-colors">
               <span class="material-icons text-sm">payment</span>
-              Pay Premium — ₹{{ policy()!.premiumAmount.toLocaleString() }}
+              Activate — Pay 1st Month ₹{{ (policy()!.premiumAmount / 12 | number:'1.2-2') }}
             </button>
+          }
+          @if (policy()!.status === 'ACTIVE') {
+            @if (!policy()!.nextPremiumDueDate || today >= policy()!.nextPremiumDueDate!) {
+              <button (click)="showPayDialog.set(true)"
+                class="flex items-center gap-1.5 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold rounded-xl transition-colors">
+                <span class="material-icons text-sm">payment</span>
+                Pay Monthly — ₹{{ (policy()!.premiumAmount / 12 | number:'1.2-2') }}
+              </button>
+            } @else {
+              <span class="inline-flex items-center gap-1.5 px-4 py-2 bg-gray-100 text-gray-500 text-sm font-medium rounded-xl">
+                <span class="material-icons text-sm">event</span>
+                Next due: {{ policy()!.nextPremiumDueDate }}
+              </span>
+            }
           }
         </div>
       </div>
@@ -132,7 +146,7 @@
                 <p class="text-xs text-gray-600 mt-1">{{ policy()!.startDate }}</p>
                 <p class="text-xs text-gray-400">Start</p>
               </div>
-              <div class="flex-1 h-0.5 bg-linear-to-r from-blue-400 to-blue-200"></div>
+              <div class="flex-1 h-0.5 bg-blue-300"></div>
               <div class="text-center">
                 <div class="w-2 h-2 rounded-full bg-blue-200 mx-auto"></div>
                 <p class="text-xs text-gray-600 mt-1">{{ policy()!.endDate }}</p>
@@ -183,32 +197,45 @@
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between">
           <div>
             <h3 class="font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <span class="material-icons text-[#853953]">upload_file</span> Document Upload
+              <span class="material-icons text-[#853953]">upload_file</span> Required Documents
             </h3>
             <div class="space-y-4">
-              <div>
-                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Document Type</label>
-                <select [(ngModel)]="documentType" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#853953] transition-all">
-                  <option value="ID_PROOF">ID Proof</option>
-                  <option value="PROPERTY_FRONT">Property Front</option>
-                  <option value="ROOF_CONDITION">Roof Condition</option>
-                  <option value="ELEVATION_CERTIFICATE">Elevation Certificate</option>
-                  <option value="OTHER">Other</option>
-                </select>
+              
+              <!-- ID Proof -->
+              <div class="border border-gray-100 p-3 rounded-xl bg-gray-50">
+                <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">1. ID Proof</label>
+                <div class="flex items-center gap-2 mt-2">
+                  <input type="file" (change)="onSpecificFileSelected($event, 'ID_PROOF')" class="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:font-semibold file:bg-white file:text-[#853953] file:border file:border-gray-200" />
+                  <button (click)="uploadSpecificDocument('ID_PROOF')" [disabled]="!filesToUpload['ID_PROOF'] || uploadingDocStr() === 'ID_PROOF'" class="px-3 py-1.5 bg-[#853953] hover:bg-[#612D53] text-white rounded-lg text-xs font-semibold disabled:bg-gray-300 transition-colors">
+                    {{ uploadingDocStr() === 'ID_PROOF' ? 'Uploading...' : 'Upload' }}
+                  </button>
+                </div>
               </div>
-              <div>
-                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Select File</label>
-                <input type="file" (change)="onFileSelected($event)" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#F3F4F4] file:text-[#853953] hover:file:bg-[#e8e9e9]" />
+
+              <!-- House Image -->
+              <div class="border border-gray-100 p-3 rounded-xl bg-gray-50">
+                <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">2. House Image</label>
+                <div class="flex items-center gap-2 mt-2">
+                  <input type="file" (change)="onSpecificFileSelected($event, 'HOUSE_IMAGE')" class="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:font-semibold file:bg-white file:text-[#853953] file:border file:border-gray-200" />
+                  <button (click)="uploadSpecificDocument('HOUSE_IMAGE')" [disabled]="!filesToUpload['HOUSE_IMAGE'] || uploadingDocStr() === 'HOUSE_IMAGE'" class="px-3 py-1.5 bg-[#853953] hover:bg-[#612D53] text-white rounded-lg text-xs font-semibold disabled:bg-gray-300 transition-colors">
+                    {{ uploadingDocStr() === 'HOUSE_IMAGE' ? 'Uploading...' : 'Upload' }}
+                  </button>
+                </div>
               </div>
+
+              <!-- Property Certificate -->
+              <div class="border border-gray-100 p-3 rounded-xl bg-gray-50">
+                <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">3. Property Certificate</label>
+                <div class="flex items-center gap-2 mt-2">
+                  <input type="file" (change)="onSpecificFileSelected($event, 'PROPERTY_CERTIFICATE')" class="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:font-semibold file:bg-white file:text-[#853953] file:border file:border-gray-200" />
+                  <button (click)="uploadSpecificDocument('PROPERTY_CERTIFICATE')" [disabled]="!filesToUpload['PROPERTY_CERTIFICATE'] || uploadingDocStr() === 'PROPERTY_CERTIFICATE'" class="px-3 py-1.5 bg-[#853953] hover:bg-[#612D53] text-white rounded-lg text-xs font-semibold disabled:bg-gray-300 transition-colors">
+                    {{ uploadingDocStr() === 'PROPERTY_CERTIFICATE' ? 'Uploading...' : 'Upload' }}
+                  </button>
+                </div>
+              </div>
+
             </div>
           </div>
-          <button (click)="uploadDocument()" [disabled]="!selectedFile || uploadingDoc()" class="w-full py-2.5 bg-[#853953] hover:bg-[#612D53] disabled:bg-gray-300 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 mt-4">
-            @if (uploadingDoc()) {
-              <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> Uploading...
-            } @else {
-              <span class="material-icons text-sm">cloud_upload</span> Upload
-            }
-          </button>
         </div>
 
         <!-- Advanced Details Form (Only if not submitted yet) -->
@@ -223,11 +250,6 @@
                   <label class="block text-xs text-gray-500 mb-1">Year Built</label>
                   <input type="number" [(ngModel)]="yearBuilt" placeholder="e.g. 2010" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none text-sm" />
                   @if (validationErrors.yearBuilt) { <p class="text-xs text-red-500 mt-1">{{validationErrors.yearBuilt}}</p> }
-                </div>
-                <div>
-                  <label class="block text-xs text-gray-500 mb-1">Roof Age (Years)</label>
-                  <input type="number" [(ngModel)]="roofAge" placeholder="e.g. 5" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none text-sm" />
-                  @if (validationErrors.roofAge) { <p class="text-xs text-red-500 mt-1">{{validationErrors.roofAge}}</p> }
                 </div>
               </div>
               <div class="flex flex-col gap-6">
@@ -280,7 +302,6 @@
           </h3>
           <div class="space-y-3">
             <div class="flex justify-between"><span class="text-sm text-gray-500">Year Built</span><span class="text-sm font-medium text-gray-800">{{ policy()!.yearBuilt }}</span></div>
-            <div class="flex justify-between"><span class="text-sm text-gray-500">Roof Age</span><span class="text-sm font-medium text-gray-800">{{ policy()!.roofAge }} yrs</span></div>
             <div class="flex justify-between"><span class="text-sm text-gray-500">Material</span><span class="text-sm font-medium text-gray-800">{{ policy()!.constructionMaterial }}</span></div>
             <div class="flex justify-between"><span class="text-sm text-gray-500">Safety Features</span><span class="text-sm font-medium text-gray-800">{{ policy()!.safetyFeatures }}</span></div>
           </div>

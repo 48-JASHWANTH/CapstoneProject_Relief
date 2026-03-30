@@ -26,9 +26,10 @@ export class CustomerPolicyDetail implements OnInit {
   successMsg = signal('');
   errorMsg = signal('');
   showConfirmDialog = signal(false);
-  validationErrors: { yearBuilt?: string, roofAge?: string, material?: string, safety?: string } = {};
+  validationErrors: { yearBuilt?: string, material?: string, safety?: string } = {};
   showPayDialog = signal(false);
   userId = this.auth.getUserId();
+  today = new Date().toISOString().split('T')[0];
 
   ngOnInit() {
     this.svc.getById(this.userId, Number(this.id)).subscribe(p => {
@@ -47,7 +48,6 @@ export class CustomerPolicyDetail implements OnInit {
 
   // Advanced Details
   yearBuilt: number | null = null;
-  roofAge: number | null = null;
   constructionMaterial: string[] = [];
   safetyFeatures: string[] = [];
 
@@ -55,27 +55,47 @@ export class CustomerPolicyDetail implements OnInit {
   availableSafetyFeatures = ['None', 'Sprinklers', 'Fire Alarms', 'Security System', 'Deadbolts', 'Fire Extinguishers', 'Storm Shutters', 'Backup Generator'];
 
   // File Upload
-  selectedFile: File | null = null;
-  documentType: string = 'ID_PROOF';
+  filesToUpload: { [key: string]: File | null } = {
+    'ID_PROOF': null,
+    'HOUSE_IMAGE': null,
+    'PROPERTY_CERTIFICATE': null
+  };
+  uploadingDocStr = signal<string | null>(null);
 
-  onFileSelected(event: any) {
+  onSpecificFileSelected(event: any, docType: string) {
     const file = event.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        this.notifyError('File size cannot exceed 5MB. Please choose a smaller file.');
+        this.notifyError('File size cannot exceed 5MB.');
         event.target.value = '';
-        this.selectedFile = null;
+        this.filesToUpload[docType] = null;
         return;
       }
-      const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
-      if (!allowedTypes.includes(file.type)) {
-        this.notifyError('Only JPG, PNG, and PDF files are allowed.');
-        event.target.value = '';
-        this.selectedFile = null;
-        return;
-      }
-      this.selectedFile = file;
+      this.filesToUpload[docType] = file;
     }
+  }
+
+  uploadSpecificDocument(docType: string) {
+    const file = this.filesToUpload[docType];
+    if (!file) return;
+
+    this.uploadingDocStr.set(docType);
+    this.svc.uploadDocument(this.userId, this.policy()!.id, docType, file).subscribe({
+      next: (doc) => {
+        const currentPolicy = this.policy();
+        if (currentPolicy) {
+          const docs = currentPolicy.documents || [];
+          this.policy.set({ ...currentPolicy, documents: [...docs, doc] });
+        }
+        this.filesToUpload[docType] = null;
+        this.uploadingDocStr.set(null);
+        this.toast('Document uploaded successfully!');
+      },
+      error: (err) => {
+        this.uploadingDocStr.set(null);
+        this.notifyError(err?.error?.message || 'Failed to upload document.');
+      }
+    });
   }
 
   notifyError(msg: string) {
@@ -109,48 +129,18 @@ export class CustomerPolicyDetail implements OnInit {
     });
   }
 
-  uploadDocument() {
-    if (!this.selectedFile) return;
-    this.uploadingDoc.set(true);
-    this.svc.uploadDocument(this.userId, this.policy()!.id, this.documentType, this.selectedFile).subscribe({
-      next: (doc) => {
-        const currentPolicy = this.policy();
-        if (currentPolicy) {
-          const docs = currentPolicy.documents || [];
-          this.policy.set({ ...currentPolicy, documents: [...docs, doc] });
-        }
-        this.selectedFile = null;
-        this.documentType = 'ID_PROOF';
-        this.uploadingDoc.set(false);
-        this.toast('Document uploaded successfully!');
-      },
-      error: (err) => {
-        this.uploadingDoc.set(false);
-        this.notifyError(err?.error?.message || 'Failed to upload document.');
-      }
-    });
-  }
-
   submitAdvancedDetails() {
     this.validationErrors = {};
     let valid = true;
 
     if (!this.yearBuilt) { this.validationErrors.yearBuilt = "Year built is required"; valid = false; }
-    if (this.roofAge === null || this.roofAge === undefined) { this.validationErrors.roofAge = "Roof age is required"; valid = false; }
     if (this.constructionMaterial.length === 0) { this.validationErrors.material = "Please select at least one material"; valid = false; }
     if (this.safetyFeatures.length === 0) { this.validationErrors.safety = "Please select at least one safety feature"; valid = false; }
 
     if (!valid) return;
 
-    this.showConfirmDialog.set(true);
-  }
-
-  confirmSubmitAdvancedDetails() {
-    this.showConfirmDialog.set(false);
-
     const req = {
       yearBuilt: this.yearBuilt || 0,
-      roofAge: this.roofAge || 0,
       constructionMaterial: Array.isArray(this.constructionMaterial) ? this.constructionMaterial.join(', ') : this.constructionMaterial,
       previousClaimsHistory: 'None',
       safetyFeatures: Array.isArray(this.safetyFeatures) ? this.safetyFeatures.join(', ') : this.safetyFeatures

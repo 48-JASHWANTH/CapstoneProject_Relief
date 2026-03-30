@@ -54,6 +54,9 @@ public class AdminPolicyServiceImpl implements AdminPolicyService {
                     "Only PENDING or UNDER_REVIEW policies can be approved or rejected. Current status: " + policy.getStatus());
         }
         policy.setStatus(newStatus);
+        if (newStatus.equals("APPROVED")) {
+            policy.setNextPremiumDueDate(java.time.LocalDate.now());
+        }
         if (request.getRemarks() != null) {
             policy.setRemarks(request.getRemarks());
         }
@@ -103,6 +106,7 @@ public class AdminPolicyServiceImpl implements AdminPolicyService {
                 .remarks(policy.getRemarks())
                 .startDate(policy.getStartDate())
                 .endDate(policy.getEndDate())
+                .nextPremiumDueDate(policy.getNextPremiumDueDate())
                 .region(policy.getRegion())
                 .tenure(policy.getTenure())
                 .disasterZoneId(policy.getDisasterZone() != null ? policy.getDisasterZone().getId() : null)

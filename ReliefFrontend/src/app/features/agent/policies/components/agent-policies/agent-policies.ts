@@ -51,6 +51,14 @@ export class AgentPolicies implements OnInit {
 
   get paginated(): PolicyResponse[] { return this.filtered().slice(this.page() * this.pageSize, (this.page() + 1) * this.pageSize); }
   get totalPages(): number { return Math.ceil(this.filtered().length / this.pageSize); }
+  
+  canAdjustPremium(p: PolicyResponse): boolean {
+    if (!p) return false;
+    if (!p.yearBuilt) return false;
+    if (!p.documents || p.documents.length < 3) return false;
+    return true;
+  }
+  
   canForward(_p: PolicyResponse): boolean { return false; }
   openAdjust(p: PolicyResponse): void { this.selectedPolicy.set(p); this.showAdjustDialog.set(true); }
   viewDetail(p: PolicyResponse): void { this.router.navigate(['/agent/policies', p.id]); }

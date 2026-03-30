@@ -58,6 +58,16 @@ export class CustomerPolicies implements OnInit {
     });
   }
 
+  isPaymentDue(p: PolicyResponse): boolean {
+    if (!p.nextPremiumDueDate) return true;
+    const dueDate = new Date(p.nextPremiumDueDate);
+    const today = new Date();
+    // Compare dates (ignore time)
+    dueDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    return today >= dueDate;
+  }
+
   statusClass(s: string): string {
     const m: Record<string, string> = {
       PENDING: 'bg-yellow-100 text-yellow-700',

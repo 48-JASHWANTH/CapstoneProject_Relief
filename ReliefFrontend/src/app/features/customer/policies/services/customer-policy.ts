@@ -19,6 +19,7 @@ export interface PolicyResponse {
   status: string;
   startDate: string;
   endDate: string;
+  nextPremiumDueDate?: string;
   region: string | null;
   tenure: number | null;
   disasterZoneId: number | null;
@@ -27,7 +28,6 @@ export interface PolicyResponse {
   remarks: string | null;
   riskPoolDisasterType: string | null;
   yearBuilt?: number;
-  roofAge?: number;
   constructionMaterial?: string;
   previousClaimsHistory?: string;
   safetyFeatures?: string;
@@ -46,7 +46,6 @@ export interface PolicyDocumentResponse {
 
 export interface PolicyAdvancedDetailsRequest {
   yearBuilt: number;
-  roofAge: number;
   constructionMaterial: string;
   previousClaimsHistory: string;
   safetyFeatures: string;

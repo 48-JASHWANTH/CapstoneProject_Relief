@@ -2,6 +2,7 @@ import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminDisasterZoneService } from '../../services/admin-disaster-zone';
+import { AdminRiskPoolService } from '../../../risk-pools/services/admin-risk-pool';
 import { DisasterZoneResponse } from '../../../../../core/models/disaster-zone.model';
 import { DisasterZoneFormDialog } from '../disaster-zone-form-dialog/disaster-zone-form-dialog';
 
@@ -13,8 +14,10 @@ import { DisasterZoneFormDialog } from '../disaster-zone-form-dialog/disaster-zo
 })
 export class AdminDisasterZones implements OnInit {
   private svc = inject(AdminDisasterZoneService);
+  private riskPoolSvc = inject(AdminRiskPoolService);
   zones = signal<DisasterZoneResponse[]>([]);
   filtered = signal<DisasterZoneResponse[]>([]);
+  disasterTypes: string[] = [];
   loading = signal(true);
   filterRisk = 'ALL';
   filterDisaster = 'ALL';
@@ -25,7 +28,12 @@ export class AdminDisasterZones implements OnInit {
   page = signal(0);
   pageSize = 10;
 
-  ngOnInit(): void { this.load(); }
+  ngOnInit(): void { 
+    this.load(); 
+    this.riskPoolSvc.getDisasterTypes().subscribe(types => {
+      this.disasterTypes = types.length > 0 ? types : ['FLOOD', 'EARTHQUAKE', 'CYCLONE', 'HURRICANE'];
+    });
+  }
 
   load(): void {
     this.loading.set(true);

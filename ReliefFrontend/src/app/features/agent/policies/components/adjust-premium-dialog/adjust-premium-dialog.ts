@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { PolicyResponse } from '../../../../../core/models/policy.model';
 import { AgentPolicyService } from '../../services/agent-policy';
 
+import { AiPremiumDecision } from '../../services/agent-policy';
+
 @Component({
   selector: 'app-adjust-premium-dialog',
   imports: [CommonModule, FormsModule],
@@ -14,6 +16,7 @@ export class AdjustPremiumDialog implements OnInit {
   @Input() policy: PolicyResponse | null = null;
   @Input() agentId!: number;
   @Input() policyId!: number;
+  @Input() aiDecision: AiPremiumDecision | null = null;
   @Output() save = new EventEmitter<{ adjustedSumInsured: number; adjustedPremium: number; remarks: string }>();
   @Output() cancel = new EventEmitter<void>();
 
@@ -25,7 +28,11 @@ export class AdjustPremiumDialog implements OnInit {
   calculatingPremium = false;
 
   ngOnInit(): void {
-    if (this.policy) {
+    if (this.aiDecision) {
+      this.adjustedSumInsured = this.aiDecision.suggestedCoverage || 0;
+      this.adjustedPremium = this.aiDecision.suggestedPremium || 0;
+      this.remarks = "AI Underwriting Reason: " + (this.aiDecision.underwritingReasoning || '');
+    } else if (this.policy) {
       this.adjustedSumInsured = this.policy.sumInsured;
       this.recalculatePremium();
     }

@@ -37,4 +37,20 @@ public class ClaimDocument {
 
     @Column(name = "officer_remarks", length = 1000)
     private String officerRemarks;
+
+    // --- Vertex AI Vision Analysis Fields ---
+    @Column(name = "ai_damage_type")
+    private String aiDamageType;   // e.g., "Flood"
+
+    @Column(name = "ai_severity")
+    private String aiSeverity;     // "Minor" | "Moderate" | "Severe"
+
+    @Column(name = "ai_confidence")
+    private Double aiConfidence;   // e.g., 87.5
+
+    @Column(name = "ai_suggested_loss")
+    private String aiSuggestedLoss; // e.g., "₹75,000 – ₹1,50,000"
+
+    @Column(name = "ai_summary", length = 2000)
+    private String aiSummary;       // Groq AI summary for text documents
 }

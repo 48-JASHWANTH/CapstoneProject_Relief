@@ -26,6 +26,28 @@ export class ClaimDecisionDialog implements OnChanges {
     }
   }
 
+  get collectiveDamageReport() {
+    if (!this.claim || !this.claim.documents) return null;
+    const photos = this.claim.documents.filter(d => d.aiDamageType && d.aiDamageType !== 'Unknown' && d.aiDamageType !== 'N/A');
+    const docs = this.claim.documents.filter(d => !!d.aiSummary);
+
+    if (photos.length === 0 && docs.length === 0) return null;
+
+    let severities = photos.map(p => p.aiSeverity).filter(s => !!s);
+    let maxSeverity = 'None';
+    if (severities.includes('Severe')) maxSeverity = 'Severe';
+    else if (severities.includes('Moderate')) maxSeverity = 'Moderate';
+    else if (severities.includes('Minor')) maxSeverity = 'Minor';
+
+    let lossRanges = photos.map(p => p.aiSuggestedLoss).filter(l => !!l && l !== 'N/A');
+
+    return {
+      maxSeverity,
+      lossRanges: lossRanges.length ? lossRanges.join(' | ') : 'N/A',
+      documentSummaries: docs.map(d => d.aiSummary)
+    };
+  }
+
   get isValid(): boolean {
     if (!this.remarks.trim()) return false;
     if (this.decision === 'APPROVED') {

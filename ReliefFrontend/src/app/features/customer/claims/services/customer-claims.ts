@@ -11,6 +11,11 @@ export interface ClaimDocumentResponse {
   documentStatus: string;
   officerRemarks: string | null;
   uploadedAt: string;
+  // Vertex AI Vision analysis
+  aiDamageType: string | null;
+  aiSeverity: string | null;
+  aiConfidence: number | null;
+  aiSuggestedLoss: string | null;
 }
 
 export interface CustomerClaimResponse {

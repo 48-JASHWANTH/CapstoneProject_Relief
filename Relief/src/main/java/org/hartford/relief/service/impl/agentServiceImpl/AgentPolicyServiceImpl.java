@@ -89,10 +89,10 @@ public class AgentPolicyServiceImpl implements AgentPolicyService {
     public PolicyResponse adjustPremium(Long agentId, Long policyId, AgentPremiumAdjustRequest request) {
         Policy policy = getOwnedPolicy(agentId, policyId);
 
-        // Can only adjust premium on PENDING policies
-        if (!"PENDING".equalsIgnoreCase(policy.getStatus())) {
+        // Can only adjust premium on PENDING or UNDER_REVIEW policies
+        if (!("PENDING".equalsIgnoreCase(policy.getStatus()) || "UNDER_REVIEW".equalsIgnoreCase(policy.getStatus()))) {
             throw new InvalidStatusTransitionException(
-                    "Premium can only be adjusted on PENDING policies. Current status: " + policy.getStatus());
+                    "Premium can only be adjusted on PENDING or UNDER_REVIEW policies. Current status: " + policy.getStatus());
         }
         if (request.getAdjustedPremium() == null || request.getAdjustedPremium() <= 0) {
             throw new InvalidAmountException("Adjusted premium must be greater than zero.");
@@ -243,6 +243,7 @@ public class AgentPolicyServiceImpl implements AgentPolicyService {
                 .remarks(policy.getRemarks())
                 .startDate(policy.getStartDate())
                 .endDate(policy.getEndDate())
+                .nextPremiumDueDate(policy.getNextPremiumDueDate())
                 .region(policy.getRegion())
                 .tenure(policy.getTenure())
                 .disasterZoneId(zone != null ? zone.getId() : null)
@@ -250,7 +251,6 @@ public class AgentPolicyServiceImpl implements AgentPolicyService {
                 .disasterZoneRiskFactor(zone != null ? zone.getRiskFactor() : null)
                 .riskPoolDisasterType(policy.getRiskPool() != null ? policy.getRiskPool().getDisasterType() : null)
                 .yearBuilt(policy.getYearBuilt())
-                .roofAge(policy.getRoofAge())
                 .constructionMaterial(policy.getConstructionMaterial())
                 .previousClaimsHistory(policy.getPreviousClaimsHistory())
                 .safetyFeatures(policy.getSafetyFeatures())

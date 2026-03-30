@@ -27,6 +27,7 @@ public class PolicyResponse {
     private String remarks;
     private LocalDate startDate;
     private LocalDate endDate;
+    private LocalDate nextPremiumDueDate;
     private String region;
     private Integer tenure;
     private Long disasterZoneId;
@@ -35,7 +36,6 @@ public class PolicyResponse {
     private String riskPoolDisasterType;
 
     private Integer yearBuilt;
-    private Integer roofAge;
     private String constructionMaterial;
     private String previousClaimsHistory;
     private String safetyFeatures;

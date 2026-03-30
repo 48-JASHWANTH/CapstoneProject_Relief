@@ -37,6 +37,7 @@ public class ClaimsOfficerServiceImpl implements ClaimsOfficerService {
     // ══════════════════════════════════════════════
 
     @Override
+    @Transactional(readOnly = true)
     public List<ClaimResponse> getAllClaims(Long officerId) {
         return claimRepository.findByAssignedOfficer_Id(officerId)
                 .stream()
@@ -45,11 +46,13 @@ public class ClaimsOfficerServiceImpl implements ClaimsOfficerService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ClaimResponse getClaimById(Long claimId) {
         return mapClaim(findClaim(claimId));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ClaimResponse> getClaimsByStatus(Long officerId, String status) {
         return claimRepository.findByAssignedOfficer_Id(officerId)
                 .stream()
@@ -59,6 +62,7 @@ public class ClaimsOfficerServiceImpl implements ClaimsOfficerService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ClaimResponse> getClaimsByDisasterType(Long officerId, String disasterType) {
         return claimRepository.findByAssignedOfficer_Id(officerId)
                 .stream()
@@ -270,6 +274,13 @@ public class ClaimsOfficerServiceImpl implements ClaimsOfficerService {
                                 .documentStatus(d.getDocumentStatus())
                                 .officerRemarks(d.getOfficerRemarks())
                                 .uploadedAt(d.getUploadedAt())
+                                // ── Vertex AI Vision fields ──
+                                .aiDamageType(d.getAiDamageType())
+                                .aiSeverity(d.getAiSeverity())
+                                .aiConfidence(d.getAiConfidence())
+                                .aiSuggestedLoss(d.getAiSuggestedLoss())
+                                // ── Groq AI Document Analysis ──
+                                .aiSummary(d.getAiSummary())
                                 .build())
                         .collect(Collectors.toList()))
                 .assignedOfficerId(claim.getAssignedOfficer() != null ? claim.getAssignedOfficer().getId() : null)

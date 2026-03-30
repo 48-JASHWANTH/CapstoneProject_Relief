@@ -53,7 +53,9 @@ public class SecurityConfig {
                                 "/login",
                                 "/register",
                                 "/h2-console/**",
-                                "/api/chat"
+                                "/api/chat",
+                                "/api/vision/**",
+                                "/api/documents/**"
                         ).permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/agents/**").hasRole("AGENT")

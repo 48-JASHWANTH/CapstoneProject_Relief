@@ -27,11 +27,13 @@ export class AdminRiskPools implements OnInit {
     this.svc.getAll().subscribe(data => { this.pools.set(data); this.loading.set(false); });
   }
 
+  openCreate(): void { this.selectedPool.set(null); this.isEdit.set(false); this.showFormDialog.set(true); }
   openEdit(pool: RiskPoolResponse): void { this.selectedPool.set(pool); this.isEdit.set(true); this.showFormDialog.set(true); }
   openDelete(pool: RiskPoolResponse): void { this.selectedPool.set(pool); this.showConfirmDelete.set(true); }
 
   onFormSaved(data: any): void {
-    this.svc.update(this.selectedPool()!.id, data).subscribe(() => { this.showFormDialog.set(false); this.load(); });
+    const obs = this.isEdit() ? this.svc.update(this.selectedPool()!.id, data) : this.svc.create(data);
+    obs.subscribe(() => { this.showFormDialog.set(false); this.load(); });
   }
 
   confirmDelete(): void {

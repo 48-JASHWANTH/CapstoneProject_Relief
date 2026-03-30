@@ -83,11 +83,11 @@ public class Policy {
     @Column(name = "end_date")
     private LocalDate endDate;
 
+    @Column(name = "next_premium_due_date")
+    private LocalDate nextPremiumDueDate;
+
     @Column(name = "year_built")
     private Integer yearBuilt;
-
-    @Column(name = "roof_age")
-    private Integer roofAge;
 
     @Column(name = "construction_material")
     private String constructionMaterial;

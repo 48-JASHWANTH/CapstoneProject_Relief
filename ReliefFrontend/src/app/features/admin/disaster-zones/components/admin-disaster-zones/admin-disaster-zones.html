@@ -20,8 +20,9 @@
     </select>
     <select [(ngModel)]="filterDisaster" (ngModelChange)="applyFilters()" class="border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#853953]">
       <option value="ALL">All Disaster Types</option>
-      <option value="FLOOD">Flood</option> <option value="EARTHQUAKE">Earthquake</option>
-      <option value="CYCLONE">Cyclone</option> <option value="HURRICANE">Hurricane</option>
+      @for (type of disasterTypes; track type) {
+        <option [value]="type">{{ type }}</option>
+      }
     </select>
     <span class="ml-auto text-sm text-gray-500">{{ filtered().length }} zone(s) found</span>
   </div>

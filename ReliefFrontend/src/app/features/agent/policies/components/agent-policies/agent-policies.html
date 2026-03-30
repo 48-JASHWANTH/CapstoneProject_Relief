@@ -74,8 +74,13 @@
                 <td class="px-5 py-4"><span [class]="'px-2 py-0.5 rounded-full text-xs font-semibold ' + statusClass(p.status)">{{ p.status }}</span></td>
                 <td class="px-5 py-4">
                   <div class="flex items-center gap-1">
-                    @if (p.status === 'PENDING') {
-                      <button (click)="openAdjust(p)" class="p-1.5 text-[#853953] hover:bg-[#F3F4F4] rounded-lg transition-colors" title="Adjust Premium">
+                    @if (p.status === 'PENDING' || p.status === 'UNDER_REVIEW') {
+                      <button (click)="openAdjust(p)" 
+                              [disabled]="!canAdjustPremium(p)"
+                              [class.opacity-50]="!canAdjustPremium(p)"
+                              [class.cursor-not-allowed]="!canAdjustPremium(p)"
+                              class="p-1.5 text-[#853953] hover:bg-[#F3F4F4] rounded-lg transition-colors" 
+                              [title]="canAdjustPremium(p) ? 'Adjust Premium' : 'Waiting for Final Details and 3 Required Documents from customer'">
                         <span class="material-icons text-sm">tune</span>
                       </button>
                     }

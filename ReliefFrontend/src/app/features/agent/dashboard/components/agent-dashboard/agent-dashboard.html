@@ -6,7 +6,7 @@
   } @else if (data()) {
 
     <!-- Welcome Card -->
-    <div class="bg-linear-to-r from-[#612D53] to-[#853953] rounded-2xl p-6 mb-6 text-white">
+    <div class="bg-[#612D53] rounded-2xl p-6 mb-6 text-white">
       <div class="flex items-center justify-between">
         <div>
           <p class="text-[#F3F4F4] text-sm mb-1">Welcome back,</p>
@@ -16,7 +16,7 @@
             <span class="flex items-center gap-1"><span class="material-icons text-sm">map</span>{{ data()!.region }}</span>
           </div>
         </div>
-        <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
+        <div class="w-16 h-16 bg-[#853953] border-none rounded-2xl flex items-center justify-center">
           <span class="material-icons text-4xl text-white">support_agent</span>
         </div>
       </div>
@@ -25,7 +25,7 @@
     <!-- Stats Row 1 -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
       <div class="bg-white rounded-xl shadow-sm p-5 flex items-center gap-4">
-        <div class="w-12 h-12 bg-[#612D53]/10 rounded-xl flex items-center justify-center"><span class="material-icons text-[#612D53]">policy</span></div>
+        <div class="w-12 h-12 bg-[#F3F4F4] rounded-xl flex items-center justify-center"><span class="material-icons text-[#612D53]">policy</span></div>
         <div><div class="text-2xl font-bold text-gray-800">{{ data()!.totalPoliciesAssigned }}</div><div class="text-sm text-gray-500">Total Policies Assigned</div></div>
       </div>
       <div class="bg-white rounded-xl shadow-sm p-5 flex items-center gap-4">

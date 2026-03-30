@@ -144,17 +144,97 @@
               <p class="text-xs text-gray-400 uppercase tracking-wide mb-2">Attached Supporting Documents</p>
               <div class="grid grid-cols-1 gap-2">
                 @for (doc of claim()!.documents; track doc.id) {
-                  <div class="flex items-center justify-between p-2 bg-gray-50 border border-gray-100 rounded-lg hover:border-[#853953] transition-colors">
-                    <div class="flex items-center gap-2">
-                      <span class="material-icons text-gray-400 text-sm">
-                        {{ doc.fileUrl.endsWith('.pdf') ? 'picture_as_pdf' : 'image' }}
-                      </span>
-                      <p class="text-sm font-medium text-gray-700">{{ doc.documentType.replace('_', ' ') }}</p>
+                  <div class="p-3 bg-gray-50 border border-gray-100 rounded-xl hover:border-[#853953] transition-colors">
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <span class="material-icons text-gray-400 text-sm">
+                          {{ doc.fileUrl.endsWith('.pdf') ? 'picture_as_pdf' : 'image' }}
+                        </span>
+                        <p class="text-sm font-medium text-gray-700">{{ doc.documentType.replace('_', ' ') }}</p>
+                      </div>
+                      <button (click)="viewDocument(doc.fileUrl)" title="View Securely"
+                        class="px-3 py-1 bg-white border border-gray-200 hover:border-[#853953] hover:text-[#853953] text-gray-600 text-xs font-semibold rounded-md shadow-sm transition-colors">
+                        View
+                      </button>
                     </div>
-                    <button (click)="viewDocument(doc.fileUrl)" title="View Securely"
-                      class="px-3 py-1 bg-white border border-gray-200 hover:border-[#853953] hover:text-[#853953] text-gray-600 text-xs font-semibold rounded-md shadow-sm transition-colors">
-                      View
-                    </button>
+
+                    <!-- AI Vision Analysis Badge: Successful classification (known type) -->
+                    @if (doc.aiDamageType && doc.aiDamageType !== 'Unknown' && doc.aiDamageType !== 'N/A') {
+                      <div class="mt-2 bg-purple-50 border border-purple-100 rounded-lg px-3 py-2">
+                        <p class="text-[10px] text-purple-600 font-semibold uppercase tracking-wider flex items-center gap-1 mb-1.5">
+                          <span class="material-icons text-[11px]">auto_awesome</span>
+                          Google Vision AI Analysis
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                          <span class="inline-flex items-center gap-0.5 px-2 py-0.5 bg-white border border-purple-100 rounded-md text-[11px] font-semibold text-gray-700">
+                            <span class="material-icons text-[10px] text-purple-400">category</span>
+                            {{ doc.aiDamageType }}
+                          </span>
+                          <span class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-md text-[11px] font-semibold"
+                            [class.bg-red-50]="doc.aiSeverity === 'Severe'"
+                            [class.text-red-700]="doc.aiSeverity === 'Severe'"
+                            [class.bg-yellow-50]="doc.aiSeverity === 'Moderate'"
+                            [class.text-yellow-700]="doc.aiSeverity === 'Moderate'"
+                            [class.bg-green-50]="doc.aiSeverity === 'Minor'"
+                            [class.text-green-700]="doc.aiSeverity === 'Minor'">
+                            {{ doc.aiSeverity }}
+                          </span>
+                          <span class="inline-flex items-center gap-0.5 px-2 py-0.5 bg-white border border-purple-100 rounded-md text-[11px] text-gray-600">
+                            {{ doc.aiConfidence }}% confident
+                          </span>
+                          <span class="inline-flex items-center gap-0.5 px-2 py-0.5 bg-purple-50 border border-purple-100 rounded-md text-[11px] font-semibold text-[#612D53]">
+                            {{ doc.aiSuggestedLoss }}
+                          </span>
+                        </div>
+                      </div>
+                    }
+
+                    <!-- AI Vision Analysis Badge: Unknown / low-confidence result -->
+                    @if (doc.aiDamageType === 'Unknown') {
+                      <div class="mt-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+                        <p class="text-[10px] text-gray-500 font-semibold uppercase tracking-wider flex items-center gap-1 mb-1.5">
+                          <span class="material-icons text-[11px]">auto_awesome</span>
+                          Google Vision AI — Low Confidence
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                          <span class="inline-flex items-center gap-0.5 px-2 py-0.5 bg-white border border-gray-200 rounded-md text-[11px] text-gray-500">
+                            <span class="material-icons text-[10px] text-gray-400">help_outline</span>
+                            Damage type unclear
+                          </span>
+                          @if (doc.aiSeverity) {
+                            <span class="inline-flex items-center gap-0.5 px-2 py-0.5 bg-white border border-gray-200 rounded-md text-[11px] text-gray-500">
+                              Severity: {{ doc.aiSeverity }}
+                            </span>
+                          }
+                          @if (doc.aiSuggestedLoss && doc.aiSuggestedLoss !== 'N/A') {
+                            <span class="inline-flex items-center gap-0.5 px-2 py-0.5 bg-white border border-gray-200 rounded-md text-[11px] text-gray-500">
+                              Est. {{ doc.aiSuggestedLoss }}
+                            </span>
+                          }
+                        </div>
+                      </div>
+                    }
+
+                    <!-- No AI data (non-DAMAGE_PHOTO or analysis failed silently) -->
+                    @if (!doc.aiDamageType && !doc.aiSummary && doc.documentType === 'DAMAGE_PHOTO') {
+                      <div class="mt-2 bg-amber-50 border border-amber-100 rounded-lg px-3 py-1.5 flex items-center gap-1.5">
+                        <span class="material-icons text-amber-400 text-[13px]">hourglass_empty</span>
+                        <p class="text-[11px] text-amber-700 font-medium">AI analysis pending or unavailable for this photo.</p>
+                      </div>
+                    }
+
+                    <!-- Groq AI Document Analysis Badge (for PDFs) -->
+                    @if (doc.aiSummary) {
+                      <div class="mt-2 bg-blue-50 border border-blue-100 rounded-lg px-3 py-2">
+                        <p class="text-[10px] text-blue-600 font-semibold uppercase tracking-wider flex items-center gap-1 mb-1.5">
+                          <span class="material-icons text-[11px]">document_scanner</span>
+                          Groq AI Document Scan
+                        </p>
+                        <p class="text-[11px] text-gray-700 leading-snug">
+                          {{ doc.aiSummary }}
+                        </p>
+                      </div>
+                    }
                   </div>
                 }
               </div>

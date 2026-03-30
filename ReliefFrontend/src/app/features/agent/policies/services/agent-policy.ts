@@ -6,6 +6,12 @@ import { API_BASE_URL } from '../../../../core/constants/api.constants';
 
 export interface AgentPremiumAdjustRequest { adjustedSumInsured: number; adjustedPremium: number; remarks: string; }
 
+export interface AiPremiumDecision {
+  suggestedCoverage: number;
+  suggestedPremium: number;
+  underwritingReasoning: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AgentPolicyService {
   private http = inject(HttpClient);
@@ -29,6 +35,10 @@ export class AgentPolicyService {
 
   calculatePremium(agentId: number, policyId: number, sumInsured: number): Observable<number> {
     return this.http.get<number>(`${this.BASE}/api/agents/${agentId}/policies/${policyId}/calculate-premium`, { params: new HttpParams().set('sumInsured', sumInsured.toString()) });
+  }
+
+  getAiPremiumEstimate(agentId: number, policyId: number): Observable<AiPremiumDecision> {
+    return this.http.get<AiPremiumDecision>(`${this.BASE}/api/agents/${agentId}/policies/${policyId}/ai-premium`);
   }
 
   reviewDocument(agentId: number, documentId: number, status: string, remarks?: string): Observable<PolicyDocumentResponse> {

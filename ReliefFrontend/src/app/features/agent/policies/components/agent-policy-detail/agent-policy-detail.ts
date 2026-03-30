@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { AgentPolicyService } from '../../services/agent-policy';
+import { AgentPolicyService, AiPremiumDecision } from '../../services/agent-policy';
 import { PolicyResponse } from '../../../../../core/models/policy.model';
 import { AdjustPremiumDialog } from '../adjust-premium-dialog/adjust-premium-dialog';
 import { AuthService } from '../../../../../core/services/auth';
@@ -25,15 +25,46 @@ export class AgentPolicyDetail implements OnInit {
   successMsg = signal('');
   errorMsg = signal('');
   agentId = this.auth.getUserId();
+  
+  aiDecision = signal<AiPremiumDecision | null>(null);
+  loadingAi = signal(false);
+
+  fetchAiEstimate() {
+    this.loadingAi.set(true);
+    this.svc.getAiPremiumEstimate(this.agentId, this.policy()!.id).subscribe({
+      next: (res) => {
+        this.aiDecision.set(res);
+        this.loadingAi.set(false);
+        this.notify('AI Underwriting Assessment Complete');
+      },
+      error: (err) => {
+        this.loadingAi.set(false);
+        this.notifyError('AI assessment failed: ' + (err?.error?.message || err.message));
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.svc.getById(this.agentId, Number(this.id)).subscribe(p => { this.policy.set(p || null); this.loading.set(false); });
   }
 
+  get canAdjustPremium(): boolean {
+    const p = this.policy();
+    if (!p) return false;
+    
+    // Check if advanced details are submitted
+    if (!p.yearBuilt) return false;
+    
+    // Check if at least 3 documents are uploaded
+    if (!p.documents || p.documents.length < 3) return false;
+    
+    return true;
+  }
+
   onAdjustSaved(data: { adjustedSumInsured: number; adjustedPremium: number; remarks: string }): void {
     this.svc.adjustPremium(this.agentId, this.policy()!.id, data).subscribe({
       next: (updated) => { this.policy.set(updated); this.showAdjustDialog.set(false); this.notify('Coverage and premium updated successfully'); },
-      error: (err) => { this.notifyError(err?.error?.message || 'Failed to adjust premium. Only PENDING policies can be adjusted.'); }
+      error: (err) => { this.notifyError(err?.error?.message || 'Failed to adjust premium. Only PENDING/UNDER_REVIEW policies can be adjusted.'); }
     });
   }
 
