@@ -24,6 +24,7 @@ export class CustomerNewClaim implements OnInit {
   eligiblePolicies = signal<PolicyResponse[]>([]);
   policiesLoaded = signal(false);
   userId = this.auth.getUserId();
+  maxDate = new Date().toISOString().split('T')[0];
 
   step = signal<number>(1);
   createdClaim = signal<CustomerClaimResponse | null>(null);

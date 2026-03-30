@@ -26,7 +26,7 @@ public class AdminDashboardResponse {
 
     private Map<String, Long> policiesByDisasterType;
     private Map<String, Long> claimsByStatus;
-    private Map<String, Double> riskPoolSummary;
+    private java.util.List<RiskPoolSummaryDto> riskPoolSummary;
 
     private long criticalRiskPools;
 }

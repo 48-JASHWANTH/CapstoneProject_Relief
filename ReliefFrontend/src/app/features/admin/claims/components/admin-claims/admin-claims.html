@@ -151,12 +151,12 @@
           class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#853953] focus:ring-1 focus:ring-[#853953] bg-white"
         >
           <option [ngValue]="null">-- Select a claims officer --</option>
-          @for (officer of officers(); track officer.id) {
+          @for (officer of availableOfficersForSelection; track officer.id) {
             <option [ngValue]="officer.id">{{ officer.name }} ({{ officer.email }})</option>
           }
         </select>
-        @if (officers().length === 0) {
-          <p class="text-xs text-[#853953] mt-2">No active claims officers available.</p>
+        @if (availableOfficersForSelection.length === 0) {
+          <p class="text-xs text-[#853953] mt-2">No active claims officers available for this region.</p>
         }
       </div>
 

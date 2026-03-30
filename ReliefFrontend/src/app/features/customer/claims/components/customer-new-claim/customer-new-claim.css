@@ -1,0 +1,9 @@
+@keyframes loading {
+  0% { transform: translateX(-100%); width: 30%; }
+  50% { transform: translateX(30%); width: 70%; }
+  100% { transform: translateX(100%); width: 30%; }
+}
+
+.animate-\\[loading_1s_ease-in-out_infinite\\] {
+  animation: loading 1.5s ease-in-out infinite;
+}

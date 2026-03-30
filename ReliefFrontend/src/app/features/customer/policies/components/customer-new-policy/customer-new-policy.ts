@@ -67,6 +67,26 @@ export class CustomerNewPolicy implements OnInit {
     this.form.get('sumInsured')?.updateValueAndValidity();
   }
 
+  formatCurrencyView(controlName: string): string {
+    const val = this.form.get(controlName)?.value;
+    return val != null && val !== '' ? Number(val).toLocaleString('en-IN') : '';
+  }
+
+  onCurrencyInput(controlName: string, event: Event) {
+    const input = event.target as HTMLInputElement;
+    const rawValue = input.value.replace(/[^0-9]/g, '');
+    const num = rawValue ? parseInt(rawValue, 10) : null;
+    
+    // Set the hidden reactive form state to the true integer
+    this.form.get(controlName)?.setValue(num, { emitEvent: true });
+    this.form.get(controlName)?.markAsDirty();
+    
+    // Update the visible input value to show commas (en-IN)
+    input.value = num != null ? num.toLocaleString('en-IN') : '';
+    
+    if (controlName === 'propertyValue') this.onPropertyValueChange();
+  }
+
   submit() {
     if (this.form.invalid) {
       this.form.markAllAsTouched();

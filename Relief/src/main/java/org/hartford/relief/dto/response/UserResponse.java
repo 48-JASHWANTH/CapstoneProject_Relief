@@ -17,4 +17,5 @@ public class UserResponse {
     private String status;
     private LocalDateTime createdAt;
     private String role;
+    private String region;
 }

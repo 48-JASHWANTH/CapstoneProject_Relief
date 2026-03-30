@@ -88,7 +88,7 @@
       <!-- Incident Date -->
       <div>
         <label class="block text-sm font-semibold text-gray-700 mb-1">Incident Date <span class="text-red-500">*</span></label>
-        <input type="date" formControlName="incidentDate"
+        <input type="date" formControlName="incidentDate" [max]="maxDate"
           class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[#853953] focus:ring-2 focus:ring-[#F3F4F4]"
           [class.border-red-400]="invalid('incidentDate')">
         @if (invalid('incidentDate')) {
@@ -192,79 +192,118 @@
           <h4 class="text-sm font-bold text-gray-800 mb-2">Upload Supporting Documents</h4>
           <p class="text-xs text-gray-500 mb-4">You can optionally attach photos of the damage, repair estimates, or police reports to expedite processing.</p>
           
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
             
             <!-- Photo 1 (Required) -->
-            <div class="bg-white border border-gray-200 rounded-xl p-4 flex flex-col justify-between">
+            <div class="relative overflow-hidden bg-white border border-gray-200 rounded-2xl p-5 flex flex-col justify-between hover:border-[#853953] hover:shadow-lg transition-all group shrink-0">
+              @if (uploadStates().photo1 === 'uploading') { <div class="absolute inset-x-0 bottom-0 h-1 bg-gray-100 overflow-hidden"><div class="h-full bg-[#853953] animate-[loading_1s_ease-in-out_infinite]"></div></div> }
               <div>
-                <p class="text-xs font-bold text-[#612D53] uppercase tracking-wider mb-1 flex items-center justify-between">
-                  Damage Photo 1 <span class="bg-red-50 text-red-600 px-1.5 py-0.5 rounded text-[10px]">Required</span>
-                </p>
-                <p class="text-[11px] text-gray-400 mb-3">Clear image of the primary damage area (JPG/PNG).</p>
+                <div class="flex items-center justify-between mb-3">
+                  <div class="w-10 h-10 rounded-xl bg-pink-50 flex items-center justify-center text-[#853953] group-hover:scale-110 transition-transform">
+                    <span class="material-icons">add_a_photo</span>
+                  </div>
+                  <span class="bg-red-50 text-red-600 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider">Required</span>
+                </div>
+                <h5 class="text-sm font-bold text-gray-800 mb-1">Damage Photo 1</h5>
+                <p class="text-[11px] text-gray-500 mb-4 leading-relaxed">Clear image of the primary damage area. (JPG/PNG max 5MB)</p>
+                
                 @if (uploadStates().photo1 === 'done') {
-                  <div class="flex items-center gap-2 text-green-600 bg-green-50 px-3 py-2 rounded-lg text-xs font-semibold">
-                    <span class="material-icons text-sm">check_circle</span> Uploaded Successfully
+                  <div class="flex items-center gap-2 text-green-700 bg-green-50/80 px-3 py-2.5 rounded-xl text-xs font-semibold border border-green-100">
+                    <span class="material-icons text-[18px]">check_circle</span> Upload Complete
                   </div>
                 } @else {
-                  <input type="file" (change)="onFileSelected($event, 'photo1')" accept=".jpg,.jpeg,.png"
-                    [disabled]="uploadStates().photo1 === 'uploading'"
-                    class="block w-full text-[11px] text-gray-500 file:mr-2 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-[#F3F4F4] file:text-[#853953] hover:file:bg-gray-200 transition-colors">
+                  <label class="relative flex items-center justify-center w-full p-3 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 hover:border-[#853953]/50 transition-colors group/input"
+                         [class.opacity-50]="uploadStates().photo1 === 'uploading'">
+                    <input type="file" (change)="onFileSelected($event, 'photo1')" accept=".jpg,.jpeg,.png"
+                      [disabled]="uploadStates().photo1 === 'uploading'" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed">
+                    <div class="flex items-center gap-2 text-[#853953]">
+                      <span class="material-icons text-sm">cloud_upload</span>
+                      <span class="text-xs font-semibold truncate">{{ photo1File ? photo1File.name : 'Browse file...' }}</span>
+                    </div>
+                  </label>
                 }
               </div>
               @if (uploadStates().photo1 !== 'done') {
                 <button (click)="uploadSpecificFile('photo1')" [disabled]="!photo1File || uploadStates().photo1 === 'uploading'"
-                  class="mt-3 w-full py-1.5 bg-[#853953] text-white text-xs font-semibold rounded-lg hover:bg-[#612D53] disabled:opacity-50 transition-all">
-                  {{ uploadStates().photo1 === 'uploading' ? 'Uploading...' : 'Upload Photo 1' }}
+                  class="mt-4 w-full py-2 bg-[#853953] text-white text-xs font-semibold rounded-xl hover:bg-[#612D53] disabled:bg-gray-100 disabled:text-gray-400 transition-all shadow-sm flex items-center justify-center gap-2">
+                  @if (uploadStates().photo1 === 'uploading') { <span class="material-icons text-sm animate-spin">refresh</span> Uploading... }
+                  @else { Upload Photo }
                 </button>
               }
             </div>
 
             <!-- Photo 2 (Optional) -->
-            <div class="bg-white border text-gray-200 border-dashed rounded-xl p-4 flex flex-col justify-between">
+            <div class="relative overflow-hidden bg-white border border-dashed border-gray-200 rounded-2xl p-5 flex flex-col justify-between hover:border-gray-400 transition-all group shrink-0">
+              @if (uploadStates().photo2 === 'uploading') { <div class="absolute inset-x-0 bottom-0 h-1 bg-gray-100 overflow-hidden"><div class="h-full bg-gray-600 animate-[loading_1s_ease-in-out_infinite]"></div></div> }
               <div>
-                <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 flex items-center justify-between">
-                  Damage Photo 2 <span class="bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded text-[10px]">Optional</span>
-                </p>
-                <p class="text-[11px] text-gray-400 mb-3">Additional angle or secondary damage (JPG/PNG).</p>
+                <div class="flex items-center justify-between mb-3">
+                  <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-500 group-hover:scale-110 transition-transform">
+                    <span class="material-icons">collections</span>
+                  </div>
+                  <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider">Optional</span>
+                </div>
+                <h5 class="text-sm font-bold text-gray-800 mb-1">Damage Photo 2</h5>
+                <p class="text-[11px] text-gray-500 mb-4 leading-relaxed">Additional angle or secondary damage context. (JPG/PNG max 5MB)</p>
+                
                 @if (uploadStates().photo2 === 'done') {
-                  <div class="flex items-center gap-2 text-green-600 bg-green-50 px-3 py-2 rounded-lg text-xs font-semibold">
-                    <span class="material-icons text-sm">check_circle</span> Uploaded Successfully
+                  <div class="flex items-center gap-2 text-green-700 bg-green-50/80 px-3 py-2.5 rounded-xl text-xs font-semibold border border-green-100">
+                    <span class="material-icons text-[18px]">check_circle</span> Upload Complete
                   </div>
                 } @else {
-                  <input type="file" (change)="onFileSelected($event, 'photo2')" accept=".jpg,.jpeg,.png"
-                    [disabled]="uploadStates().photo2 === 'uploading'"
-                    class="block w-full text-[11px] text-gray-500 file:mr-2 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-gray-100 file:text-gray-600 hover:file:bg-gray-200 transition-colors">
+                  <label class="relative flex items-center justify-center w-full p-3 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 hover:border-gray-400 transition-colors group/input"
+                         [class.opacity-50]="uploadStates().photo2 === 'uploading'">
+                    <input type="file" (change)="onFileSelected($event, 'photo2')" accept=".jpg,.jpeg,.png"
+                      [disabled]="uploadStates().photo2 === 'uploading'" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed">
+                    <div class="flex items-center gap-2 text-gray-600">
+                      <span class="material-icons text-sm">cloud_upload</span>
+                      <span class="text-xs font-semibold truncate">{{ photo2File ? photo2File.name : 'Browse file...' }}</span>
+                    </div>
+                  </label>
                 }
               </div>
               @if (uploadStates().photo2 !== 'done') {
                 <button (click)="uploadSpecificFile('photo2')" [disabled]="!photo2File || uploadStates().photo2 === 'uploading'"
-                  class="mt-3 w-full py-1.5 bg-gray-200 text-gray-700 text-xs font-semibold rounded-lg hover:bg-gray-300 disabled:opacity-50 transition-all">
-                  {{ uploadStates().photo2 === 'uploading' ? 'Uploading...' : 'Upload Photo 2' }}
+                  class="mt-4 w-full py-2 bg-gray-800 text-white text-xs font-semibold rounded-xl hover:bg-black disabled:bg-gray-100 disabled:text-gray-400 transition-all shadow-sm flex items-center justify-center gap-2">
+                  @if (uploadStates().photo2 === 'uploading') { <span class="material-icons text-sm animate-spin">refresh</span> Uploading... }
+                  @else { Upload Photo }
                 </button>
               }
             </div>
 
             <!-- Supporting Document (Required) -->
-            <div class="bg-white border border-gray-200 rounded-xl p-4 flex flex-col justify-between">
+            <div class="relative overflow-hidden bg-gradient-to-br from-[#F8F9FA] to-white border border-gray-200 rounded-2xl p-5 flex flex-col justify-between hover:border-indigo-400 hover:shadow-lg transition-all group shrink-0">
+              @if (uploadStates().doc === 'uploading') { <div class="absolute inset-x-0 bottom-0 h-1 bg-indigo-50 overflow-hidden"><div class="h-full bg-indigo-600 animate-[loading_1s_ease-in-out_infinite]"></div></div> }
               <div>
-                <p class="text-xs font-bold text-indigo-700 uppercase tracking-wider mb-1 flex items-center justify-between">
-                  Supporting Document <span class="bg-red-50 text-red-600 px-1.5 py-0.5 rounded text-[10px]">Required</span>
-                </p>
-                <p class="text-[11px] text-gray-400 mb-3">Repair estimate, police report, or proof of loss (PDF ONLY).</p>
+                <div class="flex items-center justify-between mb-3">
+                  <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 group-hover:scale-110 transition-transform shadow-sm">
+                    <span class="material-icons">description</span>
+                  </div>
+                  <span class="bg-red-50 text-red-600 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider">Required</span>
+                </div>
+                <h5 class="text-sm font-bold text-gray-800 mb-1">Supporting Document</h5>
+                <p class="text-[11px] text-gray-500 mb-4 leading-relaxed">Repair estimate, police report, or proof of loss.</p>
+                
                 @if (uploadStates().doc === 'done') {
-                  <div class="flex items-center gap-2 text-green-600 bg-green-50 px-3 py-2 rounded-lg text-xs font-semibold">
-                    <span class="material-icons text-sm">check_circle</span> Uploaded Successfully
+                  <div class="flex items-center gap-2 text-green-700 bg-green-50/80 px-3 py-2.5 rounded-xl text-xs font-semibold border border-green-100">
+                    <span class="material-icons text-[18px]">check_circle</span> Upload Complete
                   </div>
                 } @else {
-                  <input type="file" (change)="onFileSelected($event, 'doc')" accept=".pdf"
-                    [disabled]="uploadStates().doc === 'uploading'"
-                    class="block w-full text-[11px] text-gray-500 file:mr-2 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition-colors">
+                  <label class="relative flex items-center justify-center w-full p-3 border-2 border-dashed border-indigo-200 rounded-xl cursor-pointer hover:bg-indigo-50 hover:border-indigo-400 transition-colors group/input"
+                         [class.opacity-50]="uploadStates().doc === 'uploading'">
+                    <input type="file" (change)="onFileSelected($event, 'doc')" accept=".pdf"
+                      [disabled]="uploadStates().doc === 'uploading'" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed">
+                    <div class="flex items-center gap-2 text-indigo-600">
+                      <span class="material-icons text-sm">picture_as_pdf</span>
+                      <span class="text-xs font-semibold truncate">{{ docFile ? docFile.name : 'Select PDF...' }}</span>
+                    </div>
+                  </label>
                 }
               </div>
               @if (uploadStates().doc !== 'done') {
                 <button (click)="uploadSpecificFile('doc')" [disabled]="!docFile || uploadStates().doc === 'uploading'"
-                  class="mt-3 w-full py-1.5 bg-indigo-600 text-white text-xs font-semibold rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-all">
-                  {{ uploadStates().doc === 'uploading' ? 'Uploading...' : 'Upload Document' }}
+                  class="mt-4 w-full py-2 bg-indigo-600 text-white text-xs font-semibold rounded-xl hover:bg-indigo-700 disabled:bg-gray-100 disabled:text-gray-400 transition-all shadow-sm flex items-center justify-center gap-2">
+                  @if (uploadStates().doc === 'uploading') { <span class="material-icons text-sm animate-spin">refresh</span> Uploading... }
+                  @else { Upload Document }
                 </button>
               }
             </div>

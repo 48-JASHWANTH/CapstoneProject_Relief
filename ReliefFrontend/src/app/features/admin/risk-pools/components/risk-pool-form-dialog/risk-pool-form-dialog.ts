@@ -22,14 +22,23 @@ export class RiskPoolFormDialog implements OnInit {
   poolStatus = 'HEALTHY';
   statuses = ['HEALTHY', 'WARNING', 'CRITICAL'];
 
+  addFundsAmount: number | null = null;
+  basePremiumCollected = 0;
+
   ngOnInit(): void {
     if (this.pool) {
       this.disasterType = this.pool.disasterType;
       this.totalPremiumCollected = this.pool.totalPremiumCollected;
+      this.basePremiumCollected = this.pool.totalPremiumCollected;
       this.totalClaimsPaid = this.pool.totalClaimsPaid;
       this.thresholdPercentage = this.pool.thresholdPercentage;
       this.poolStatus = this.pool.poolStatus;
     }
+  }
+
+  updateTotal(): void {
+    const funds = Number(this.addFundsAmount) || 0;
+    this.totalPremiumCollected = this.basePremiumCollected + funds;
   }
 
   get isValid(): boolean {

@@ -52,6 +52,7 @@ public class AdminUserServiceImpl implements AdminUserService {
                 .status("ACTIVE")
                 .createdAt(LocalDateTime.now())
                 .role(role)
+                .region(request.getRegion())
                 .build();
         User saved = userRepository.save(user);
 
@@ -159,6 +160,7 @@ public class AdminUserServiceImpl implements AdminUserService {
                 .status(user.getStatus())
                 .createdAt(user.getCreatedAt())
                 .role(user.getRole() != null ? user.getRole().getName() : null)
+                .region(user.getRegion())
                 .build();
     }
 }

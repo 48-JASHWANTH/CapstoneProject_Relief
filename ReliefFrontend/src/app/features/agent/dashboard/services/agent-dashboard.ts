@@ -13,7 +13,8 @@ export interface AgentDashboardResponse {
   pendingPolicies: number;
   approvedPolicies: number;
   activePolicies: number;
-  totalClaimsOnPolicies: number;
+  rejectedPolicies: number;
+  expiredPolicies: number;
   pendingClaims: number;
   policiesByDisasterType: { [key: string]: number };
   lossFrequencyByDisasterType: { [key: string]: number };

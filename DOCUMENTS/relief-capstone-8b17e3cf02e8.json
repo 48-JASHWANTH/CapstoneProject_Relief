@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "relief-capstone",
+  "private_key_id": "8b17e3cf02e8899a8c32d2eface3094284a68356",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCrWNT1VGYhL/Ts\nalti2JONplBsWJK+dOBRdHeFCdAPTcA5kl1Uq8slBRiPDcxpuBch4LKXj1w5drdC\nQjn09MsbFHppkoozRzSrUE97Mox0fyTs50HGQU9Q0XM0JaeEHJXa2NxC2WtKXGBL\n8QVQ7daprahAF08Tko4YJMJcePKGiIp3n65xhWpg7OcTpm51r981gH7QPpgC0gg7\nXZBmrJEHeYBNWdUjJUObSDb7LnSF4xZXv42uOfbLxI06OsvUDI7nvkivJ7ffYiGY\nuk2psjy4OlOJ9l4DyufLqjkGIeR7DjGK7seICOL/7f70YUVYeABN84u1nKP/tnkI\nx2vriijPAgMBAAECggEAKFEoFqurtj5e/mvOIfV8zpUmEkBLEwZUK8ZgQwz6iEdO\nph1C2aPskkLfMvXXtb5rrvx8eT3xwNGmsC/+DB23VqFcZk/lNciY44BrmzzbIKQ0\nD4wghWIjpAwMc+YyQtspBYwGU7Jt1Nrki6nkCtVTr6wdTStO33eZ+KNZmkGZKz89\nzqFuqIIRubkSojuJai8nuCFLy3lm/v2CjW4zvsa/Pxv2uHe2t+6/XVabmQRT40fn\nkDzWU2YaGgvI6WCiR1AwbMIC6+sArcIpLDZhUkiyPWNObMNQCSxvFv5F3xWDxTgY\ngkREDKsE5fKM05kU2G2QJVEm3u+1X3sy2WFL4HfEUQKBgQDbY2BVbFBV7VXUF/sS\nhCoM438nJRHNZWU1jrdD4Jo+Oj7t7GUxYvPiCYwWadBbFBp6SZhe4KMFbmKAyEp+\nUN7AVagdFU0NKxBFE/GhoDfr885MVoxM5CGSV5rlTraQdD01upasttJZ8IGKoXDl\nwBUXDZguuNC+Ta4zdyt1LDEdMQKBgQDH8Q6cIcp8zWPJcVHeFeL9UjqmvG3AtKzR\n9ifk1R5iRsWE3c5+wJvGFq2pBzzl/sxfU1DNGcQKSgT9qLBeYVRXw7V5I3BCYssm\nxz8Hv4CQw4h1/yIJi6Dc3wYwtO5SsdQNFNpi5q1mQZf0F9+GKO1KNHDGmFUgZxfL\n+K8kckYl/wKBgGMYFhE/pWHKm/P7CPsqG1xK/coOomXmILr6RakxMDpfUMFi/6o5\nCfPVYCNXlDcvc249A8gHK1tuqquEzLEVkifKCO9qCa2i/+xTv9bDab74FvzAMwsg\nGFHjpCFjVm8VMfis2RYWVhkt2zVlCnucMWqCR3UDIbZzm/W/JC/+0AhhAoGAJynT\nh8eipwGAK0QUGiFFXgNOU7yS7u008Md7lvobwnpEVDsyKGfH22wzxekSB6b6Fy31\npMcIPE+1XI4/Ra1g3PQLxtenNImva0AZ24WqRDDYuOwpmZ8M+laBGudFy1Ljy1Ar\nWrX+fwoYHorSkK/RkvhkorHR8s/evGhQvh3YGbcCgYAOdO+r7R8Vfw4Zn6+ZZLeV\nO9Axt+3asQ5JrIrcp1oSqQw01YFovTlImqwOhBmvevpJ01y6heppi9iBXeMxxY7O\nb/qYvQoPXK8EHgQpRlbDO5oRLREFs0H3U4hsf/710f2nCZzUHLsEJYAU1IOokSiA\namtBNBD7CsCzL1StDGYg2Q==\n-----END PRIVATE KEY-----\n",
+  "client_email": "relief-vision-sa@relief-capstone.iam.gserviceaccount.com",
+  "client_id": "110157379634656094972",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/relief-vision-sa%40relief-capstone.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

@@ -182,9 +182,11 @@
                           <span class="inline-flex items-center gap-0.5 px-2 py-0.5 bg-white border border-purple-100 rounded-md text-[11px] text-gray-600">
                             {{ doc.aiConfidence }}% confident
                           </span>
-                          <span class="inline-flex items-center gap-0.5 px-2 py-0.5 bg-purple-50 border border-purple-100 rounded-md text-[11px] font-semibold text-[#612D53]">
-                            {{ doc.aiSuggestedLoss }}
-                          </span>
+                          @if (doc.aiSuggestedLoss && doc.aiSuggestedLoss !== 'N/A') {
+                            <span class="inline-flex items-center gap-0.5 px-2 py-0.5 bg-purple-50 border border-purple-100 rounded-md text-[11px] font-semibold text-[#612D53]">
+                              ₹{{ doc.aiSuggestedLoss.replace('$', '').replace('₹', '').trim() }}
+                            </span>
+                          }
                         </div>
                       </div>
                     }
@@ -208,7 +210,7 @@
                           }
                           @if (doc.aiSuggestedLoss && doc.aiSuggestedLoss !== 'N/A') {
                             <span class="inline-flex items-center gap-0.5 px-2 py-0.5 bg-white border border-gray-200 rounded-md text-[11px] text-gray-500">
-                              Est. {{ doc.aiSuggestedLoss }}
+                              Est. ₹{{ doc.aiSuggestedLoss.replace('$', '').replace('₹', '').trim() }}
                             </span>
                           }
                         </div>

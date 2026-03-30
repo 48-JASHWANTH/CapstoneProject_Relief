@@ -50,14 +50,18 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
                 .filter(c -> c.getStatus() != null)
                 .collect(Collectors.groupingBy(c -> c.getStatus(), Collectors.counting()));
 
-        // risk pool: disasterType -> totalPremiumCollected
-        Map<String, Double> riskPoolSummary = riskPoolRepository.findAll()
+        // risk pool: map entities to dto
+        java.util.List<org.hartford.relief.dto.response.RiskPoolSummaryDto> riskPoolSummary = riskPoolRepository.findAll()
                 .stream()
                 .filter(r -> r.getDisasterType() != null)
-                .collect(Collectors.toMap(
-                        RiskPool::getDisasterType,
-                        r -> r.getTotalPremiumCollected() != null ? r.getTotalPremiumCollected() : 0.0
-                ));
+                .map(r -> org.hartford.relief.dto.response.RiskPoolSummaryDto.builder()
+                        .disasterType(r.getDisasterType())
+                        .totalPremiumCollected(r.getTotalPremiumCollected() != null ? r.getTotalPremiumCollected() : 0.0)
+                        .totalClaimsPaid(r.getTotalClaimsPaid() != null ? r.getTotalClaimsPaid() : 0.0)
+                        .poolStatus(r.getPoolStatus())
+                        .criticalFlag("CRITICAL".equalsIgnoreCase(r.getPoolStatus()))
+                        .build())
+                .collect(Collectors.toList());
 
         long criticalRiskPools = riskPoolRepository.findByPoolStatus("CRITICAL").size();
 

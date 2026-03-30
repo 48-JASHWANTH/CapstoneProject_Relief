@@ -144,6 +144,7 @@ public class AgentPolicyServiceImpl implements AgentPolicyService {
         long approved  = policies.stream().filter(p -> "APPROVED".equalsIgnoreCase(p.getStatus())).count();
         long rejected  = policies.stream().filter(p -> "REJECTED".equalsIgnoreCase(p.getStatus())).count();
         long active    = policies.stream().filter(p -> "ACTIVE".equalsIgnoreCase(p.getStatus())).count();
+        long expired   = policies.stream().filter(p -> "EXPIRED".equalsIgnoreCase(p.getStatus())).count();
 
         long approvedClaims  = claims.stream().filter(c -> "APPROVED".equalsIgnoreCase(c.getStatus())).count();
         long pendingClaims   = claims.stream()
@@ -196,6 +197,7 @@ public class AgentPolicyServiceImpl implements AgentPolicyService {
                 .approvedPolicies(approved)
                 .rejectedPolicies(rejected)
                 .activePolicies(active)
+                .expiredPolicies(expired)
                 .totalClaims(claims.size())
                 .approvedClaims(approvedClaims)
                 .pendingClaims(pendingClaims)

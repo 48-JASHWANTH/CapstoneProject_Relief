@@ -4,6 +4,7 @@ export interface UserResponse {
   email: string;
   status: string;
   role: string;
+  region?: string;
   createdAt: string;
 }
 

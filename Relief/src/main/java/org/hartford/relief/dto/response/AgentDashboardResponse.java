@@ -23,6 +23,7 @@ public class AgentDashboardResponse {
     private long approvedPolicies;
     private long rejectedPolicies;
     private long activePolicies;
+    private long expiredPolicies;
 
     // Claim stats (on policies this agent underwrote)
     private long totalClaims;

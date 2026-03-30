@@ -30,6 +30,7 @@ public class User {
     private String password;
 
     private String status;
+    private String region;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

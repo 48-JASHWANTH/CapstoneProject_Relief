@@ -62,6 +62,12 @@ export class AdminClaims implements OnInit {
     return Math.ceil(this.filtered().length / this.pageSize);
   }
 
+  get availableOfficersForSelection(): UserResponse[] {
+    const claim = this.selectedClaim();
+    if (!claim) return [];
+    return this.officers().filter(o => !o.region || o.region === claim.region);
+  }
+
   openAssignDialog(claim: AdminClaimSummary): void {
     if (claim.assignedOfficerId) return; // already assigned
     this.selectedClaim.set(claim);

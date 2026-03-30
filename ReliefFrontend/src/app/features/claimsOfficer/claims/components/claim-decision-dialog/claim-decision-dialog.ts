@@ -39,11 +39,34 @@ export class ClaimDecisionDialog implements OnChanges {
     else if (severities.includes('Moderate')) maxSeverity = 'Moderate';
     else if (severities.includes('Minor')) maxSeverity = 'Minor';
 
-    let lossRanges = photos.map(p => p.aiSuggestedLoss).filter(l => !!l && l !== 'N/A');
+    let lossRangesStr = photos.map(p => p.aiSuggestedLoss).filter(l => !!l && l !== 'N/A');
+    let totalMin = 0;
+    let totalMax = 0;
+    for (const str of lossRangesStr) {
+      if (!str) continue;
+      const cleanStr = String(str).replace(/[^\d-]/g, '').trim();
+      const parts = cleanStr.split('-').map(p => parseInt(p.trim() || '0', 10));
+      if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+        totalMin += parts[0];
+        totalMax += parts[1];
+      } else if (parts.length > 0 && !isNaN(parts[0])) {
+        totalMin += parts[0];
+        totalMax += parts[0];
+      }
+    }
+
+    let formattedRange = 'N/A';
+    if (totalMin > 0 || totalMax > 0) {
+      if (totalMin === totalMax) {
+        formattedRange = `₹${totalMin.toLocaleString()}`;
+      } else {
+        formattedRange = `₹${totalMin.toLocaleString()} - ₹${totalMax.toLocaleString()}`;
+      }
+    }
 
     return {
       maxSeverity,
-      lossRanges: lossRanges.length ? lossRanges.join(' | ') : 'N/A',
+      lossRanges: formattedRange,
       documentSummaries: docs.map(d => d.aiSummary)
     };
   }
